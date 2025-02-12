@@ -1,0 +1,11 @@
+Model Information:
+* title:	Hello Kitty sanrio new version (3D Rigged)
+* source:	https://sketchfab.com/3d-models/hello-kitty-sanrio-new-version-3d-rigged-206076bf9fc14bdc914a6560953ae3ec
+* author:	RIK Cyprus 12 (https://sketchfab.com/giorgoskyriacou2009)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Hello Kitty sanrio new version (3D Rigged)" (https://sketchfab.com/3d-models/hello-kitty-sanrio-new-version-3d-rigged-206076bf9fc14bdc914a6560953ae3ec) by RIK Cyprus 12 (https://sketchfab.com/giorgoskyriacou2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

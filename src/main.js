@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Configuração da cena
 const scene = new THREE.Scene();
@@ -25,20 +26,34 @@ const groundMesh = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.Mes
 groundMesh.rotation.x = -Math.PI / 2;
 scene.add(groundMesh);
 
-// Alvo (cilindro)
-const targetMaterial = new THREE.MeshStandardMaterial({ color: 0x98fc03 });
-const targetGeometry = new THREE.CylinderGeometry(0.2, 0.5, 0.7, 16);
-const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
-targetMesh.position.set(0, 0.35, -5); // Ajustando para ficar no chão
-scene.add(targetMesh);
+let helloKitty; // Declarando a variável no escopo global
+let targetBody; // Corpo físico no CANNON.js
 
-const targetShape = new CANNON.Cylinder(0.2, 0.5, 0.7, 16);
-const targetBody = new CANNON.Body({ mass: 5, shape: targetShape });
-targetBody.position.set(0, 0, -4);
-targetBody.velocity.set(0, 0, 1); // Movimento inicial para frente
-targetBody.linearDamping = 0.1; // Reduz a perda de velocidade
-targetBody.angularDamping = 0.2 // Controla o quanto o objeto gira
-world.addBody(targetBody);
+const loader = new GLTFLoader();
+loader.load('models/hello kitty/scene.gltf', function (gltf) {
+    helloKitty = gltf.scene; // Agora está no escopo global
+
+    // Ajuste o tamanho, posição e rotação conforme necessário
+    helloKitty.scale.set(3, 3, 3);
+    helloKitty.position.set(0, 0, -5);
+    helloKitty.rotation.y = Math.PI;
+
+    // Adiciona à cena
+    scene.add(helloKitty);
+}, undefined, function (error) {
+    console.error('Erro ao carregar modelo:', error);
+});
+
+
+const helloKittyShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)); // Ajuste conforme o tamanho do modelo
+const helloKittyBody = new CANNON.Body({ mass: 5 });
+helloKittyBody.addShape(helloKittyShape);
+helloKittyBody.position.set(0, 0, -4);
+helloKittyBody.velocity.set(0, 0, 1);
+helloKittyBody.linearDamping = 0.1;
+helloKittyBody.angularDamping = 0.2;
+world.addBody(helloKittyBody);
+
 
 // Luz
 const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -159,8 +174,11 @@ function animate() {
     if (keys.d) camera.position.addScaledVector(right, -moveSpeed);
 
     
-    targetMesh.position.copy(targetBody.position);
-    targetMesh.quaternion.copy(targetBody.quaternion);
+    // Sincroniza a posição e rotação do modelo 3D com o corpo físico
+    if (helloKitty) {
+        helloKitty.position.copy(helloKittyBody.position);
+        helloKitty.quaternion.copy(helloKittyBody.quaternion);
+    }
     
     renderer.render(scene, camera);
 }
