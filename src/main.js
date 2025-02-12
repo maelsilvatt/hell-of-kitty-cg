@@ -160,7 +160,7 @@ weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
 // Disparo ao clicar
 window.addEventListener('click', () => {
     // Geometria e material do projétil com efeito de traçador rosa e brilho
-    const projectileGeometry = new THREE.SphereGeometry(0.2, 16, 16); // Esfera pequena
+    const projectileGeometry = new THREE.SphereGeometry(0.35, 16, 16); // Esfera pequena
     const projectileMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xFF1493, // Rosa
         emissive: 0xFF1493, // Emissão rosa
@@ -174,11 +174,11 @@ window.addEventListener('click', () => {
 
     // Corpo do projétil no mundo de física (CANNON.js)
     const projectileBody = new CANNON.Body({
-        mass: 20,
+        mass: 5,
         shape: new CANNON.Sphere(0.2),
     });
 
-    const muzzlePosition = new THREE.Vector3(.6, 0, -.0045);
+    const muzzlePosition = new THREE.Vector3(.65, 0.01, -.0045);
     gunMesh.localToWorld(muzzlePosition); // Converter para coordenadas globais
 
     projectileBody.position.set(muzzlePosition.x, muzzlePosition.y, muzzlePosition.z); // Posicionando o projétil
@@ -186,10 +186,15 @@ window.addEventListener('click', () => {
 
     // Obter a direção correta da arma
     const direction = new THREE.Vector3();
-    gunMesh.getWorldDirection(direction);
+    camera.getWorldDirection(direction);
+
+    // Inverter o eixo (caso o modelo use o eixo X ou outro para frente)
+    direction.x -= 0.3;
     
     // Aplicar velocidade na direção que a arma está apontando
-    const velocity = new CANNON.Vec3(direction.x * 50, direction.y * 50, direction.z * 50);
+    let fire_vel = 100;
+
+    const velocity = new CANNON.Vec3(direction.x * fire_vel, direction.y * fire_vel, direction.z * fire_vel);
     projectileBody.velocity.copy(velocity);
 
     // Atualizando a posição do projétil
