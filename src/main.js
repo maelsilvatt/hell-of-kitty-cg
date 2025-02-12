@@ -4,7 +4,7 @@ import Stats from 'stats.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
 import {createWorld} from './level_design.js';
-import { createHelloKitty, helloKitty, helloKittyBody, updateHelloKittyMovement} from './enemies.js';
+import { createHelloKitty, helloKitty, helloKittyBody, updateHelloKittyMovement, decreaseLife} from './enemies.js';
 import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
 
 // Configuração da cena
@@ -48,6 +48,7 @@ createHelloKitty(scene, world, camera);
 
 // Carregar o modelo da arma
 let gunMesh;
+let projectileBody;
 
 const weapon_loader = new GLTFLoader();
 weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
@@ -133,6 +134,19 @@ window.addEventListener('click', () => {
         scene.remove(projectileMesh);
     }
 });
+
+// Adicionando um listener para colisões
+world.addEventListener('postStep', checkCollisions);
+
+// Função para verificar se o projétil atingiu a Hello Kitty
+function checkCollisions() {
+    if (!helloKittyBody || !projectileBody) return;
+
+    // Verificar se o projétil colidiu com a hitbox da Hello Kitty
+    if (projectileBody && helloKittyBody && projectileBody.position.distanceTo(helloKittyBody.position) < (projectileBody.shapes[0].radius + helloKittyBody.shapes[0].halfExtents.x)) {
+        decreaseLife(1);
+    }
+}
 
 // Loop de animação
 function animate() {
