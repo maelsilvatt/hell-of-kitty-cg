@@ -4,7 +4,7 @@ import Stats from 'stats.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
 import {createWorld} from './level_design.js';
-import { createHelloKitty, helloKitty, helloKittyBody } from './enemies.js';
+import { createHelloKitty, helloKitty, helloKittyBody, updateHelloKittyMovement} from './enemies.js';
 import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
 
 // Configuração da cena
@@ -26,25 +26,25 @@ document.body.appendChild(stats.dom);
 const world = createWorld(scene);
 
 // Adiciona Hello Kitty ao mundo
-createHelloKitty(scene, world);
+createHelloKitty(scene, world, camera);
 
-// Variável para garantir que a música só toque uma vez
-let musicPlayed = false;
+// // Variável para garantir que a música só toque uma vez
+// let musicPlayed = false;
 
-// Espera o usuário clicar na tela para tocar a música, mas apenas uma vez
-document.addEventListener('click', () => {
-    if (!musicPlayed) {
-        playBackgroundMusic(); // Toca a música pela primeira vez
-        musicPlayed = true;     // Marca que a música já foi tocada
-    }
-});
+// // Espera o usuário clicar na tela para tocar a música, mas apenas uma vez
+// document.addEventListener('click', () => {
+//     if (!musicPlayed) {
+//         playBackgroundMusic(); // Toca a música pela primeira vez
+//         musicPlayed = true;     // Marca que a música já foi tocada
+//     }
+// });
 
-// Desativa a música quando a tecla 'm' é pressionada
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'm') {  // Verifica se a tecla pressionada foi 'm'
-        stopBackgroundMusic();
-    }
-});
+// // Desativa a música quando a tecla 'm' é pressionada
+// document.addEventListener('keydown', (event) => {
+//     if (event.key === 'm') {  // Verifica se a tecla pressionada foi 'm'
+//         stopBackgroundMusic();
+//     }
+// });
 
 // Carregar o modelo da arma
 let gunMesh;
@@ -132,14 +132,6 @@ window.addEventListener('click', () => {
         world.removeBody(projectileBody);
         scene.remove(projectileMesh);
     }
-
-    // Detecta colisão do projétil com o alvo
-    projectileBody.addEventListener('collide', (event) => {
-        if (event.body === helloKitty) {
-            helloKitty.velocity.set(0, helloKitty.velocity.y, 0); // Para movimento para frente
-            helloKitty.angularVelocity.set(Math.random(), Math.random(), Math.random()); // Dá um giro aleatório
-        }
-    });
 });
 
 // Loop de animação
@@ -170,6 +162,9 @@ function animate() {
         helloKitty.position.copy(helloKittyBody.position);
         helloKitty.quaternion.copy(helloKittyBody.quaternion);
     }
+
+    // Atualizando o movimento do inimigo
+    updateHelloKittyMovement();
     
     renderer.render(scene, camera);
 }
