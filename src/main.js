@@ -38,8 +38,9 @@ const floorColor = 0xff6eb4; // Rosa ainda mais forte
 const wallMaterial = new THREE.MeshStandardMaterial({ color: wallColor });
 const floorMaterial = new THREE.MeshStandardMaterial({ color: floorColor });
 
-const wallSize = { width: 50, height: 10, depth: 0.2 };
-const floorSize = { width: 50, height: 50 };
+let room_size = 60;
+const wallSize = { width: room_size*2, height: 10, depth: 0.2};
+const floorSize = { width: room_size*2, height: room_size*2};
 
 // Chão
 const floorBody = new CANNON.Body({ mass: 0, shape: new CANNON.Plane(), material });
@@ -62,10 +63,10 @@ function createWall(x, y, z, rotationY = 0) {
 }
 
 // Criando as paredes
-createWall(0, 5, -25); // Parede de trás
-createWall(0, 5, 25); // Parede da frente
-createWall(-25, 5, 0, Math.PI / 2); // Parede esquerda
-createWall(25, 5, 0, Math.PI / 2); // Parede direita
+createWall(0, 5, -room_size); // Parede de trás
+createWall(0, 5, room_size); // Parede da frente
+createWall(-room_size, 5, 0, Math.PI / 2); // Parede esquerda
+createWall(room_size, 5, 0, Math.PI / 2); // Parede direita
 
 // Adicionando a Hello Kitty à cena
 let helloKitty;
@@ -74,13 +75,16 @@ let helloKittyBody; // Mantendo referência global ao corpo físico
 const loader = new GLTFLoader();
 loader.load('models/hello kitty/scene.gltf', function (gltf) {
     helloKitty = gltf.scene;
+    let hello_kitty_size = 20;
 
     // Ajuste do tamanho (3 metros de altura)
-    helloKitty.scale.set(3, 3, 3);
+    helloKitty.scale.set(hello_kitty_size, hello_kitty_size, hello_kitty_size);
 
     // Ajustando a posição inicial
     helloKitty.position.set(0, 1.5, -5); // Centralizando na base
-    helloKitty.rotation.y = Math.PI;
+
+    // Ajuste de rotação para garantir que ela olhe para frente
+    helloKitty.rotation.set(0, Math.PI, 0); // Rotacionando 180 graus ao redor do eixo Y
 
     // Adiciona à cena
     scene.add(helloKitty);
@@ -102,7 +106,7 @@ world.addBody(helloKittyBody);
 
 // Variáveis de controle de movimento e câmera
 const keys = { w: false, a: false, s: false, d: false };
-let moveSpeed = 0.1;
+let moveSpeed = 0.25;
 let mouseSensitivity = 0.002;
 let yaw = 0;
 
@@ -130,38 +134,63 @@ document.addEventListener('mousemove', (event) => {
     }
 });
 
-// Disparo
+// Carregar o modelo da arma
+let gunMesh;
+
+const weapon_loader = new GLTFLoader();
+weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
+    gunMesh = gltf.scene;
+    let gun_size =  10;
+    gunMesh.scale.set(gun_size, gun_size, gun_size); // Ajuste do tamanho da arma
+    
+    // Rotação para inclinar levemente para a esquerda
+    gunMesh.rotation.set(0, 2/3.3 * Math.PI, 0);  
+
+    // Posicionamento da arma no canto direito e um pouco abaixo
+    gunMesh.position.set(2.3, -2.3, -5.5); 
+    
+    camera.add(gunMesh); // Adiciona a arma à câmera
+    scene.add(camera);
+    
+    console.log('Arma carregada com sucesso!');
+}, (error) => {
+    console.error('Erro ao carregar o modelo da arma:', error);
+});
+
+// Disparo ao clicar
 window.addEventListener('click', () => {
-    // Geometria e material do projétil
-    const projectileGeometry = new THREE.SphereGeometry(0.05, 0.05, 1, 16);
-    const projectileMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, emissive: 0x0000ff });
+    // Geometria e material do projétil com efeito de traçador rosa e brilho
+    const projectileGeometry = new THREE.SphereGeometry(0.2, 16, 16); // Esfera pequena
+    const projectileMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xFF1493, // Rosa
+        emissive: 0xFF1493, // Emissão rosa
+        emissiveIntensity: 1, // Intensidade do brilho
+        metalness: 0.2, 
+        roughness: 0.5 
+    });
     const projectileMesh = new THREE.Mesh(projectileGeometry, projectileMaterial);
     projectileMesh.rotation.x = Math.PI / 2; // Rotação inicial para que o projétil fique no eixo certo
     scene.add(projectileMesh);
 
     // Corpo do projétil no mundo de física (CANNON.js)
     const projectileBody = new CANNON.Body({
-        mass: 1,
-        shape: new CANNON.Cylinder(0.05, 0.05, 0.05, 10),
+        mass: 20,
+        shape: new CANNON.Sphere(0.2),
     });
-    projectileBody.position.set(camera.position.x, camera.position.y - 0.5, camera.position.z);
+
+    const muzzlePosition = new THREE.Vector3(.6, 0, -.0045);
+    gunMesh.localToWorld(muzzlePosition); // Converter para coordenadas globais
+
+    projectileBody.position.set(muzzlePosition.x, muzzlePosition.y, muzzlePosition.z); // Posicionando o projétil
     world.addBody(projectileBody);
 
-    // Direção para onde a câmera está olhando (normalizada)
+    // Obter a direção correta da arma
     const direction = new THREE.Vector3();
-    camera.getWorldDirection(direction);
-
-    // Definindo a velocidade do projétil na direção da câmera
+    gunMesh.getWorldDirection(direction);
+    
+    // Aplicar velocidade na direção que a arma está apontando
     const velocity = new CANNON.Vec3(direction.x * 50, direction.y * 50, direction.z * 50);
     projectileBody.velocity.copy(velocity);
-
-    // Ajustando a rotação do projétil para que ele aponte na direção do movimento
-    const targetPosition = new THREE.Vector3(
-        projectileBody.position.x + direction.x,
-        projectileBody.position.y + direction.y,
-        projectileBody.position.z + direction.z
-    );
-    projectileMesh.lookAt(direction); // Faz com que o projétil aponte para onde está indo
 
     // Atualizando a posição do projétil
     function updateProjectile() {
@@ -186,9 +215,9 @@ window.addEventListener('click', () => {
 
     // Detecta colisão do projétil com o alvo
     projectileBody.addEventListener('collide', (event) => {
-        if (event.body === targetBody) {
-            targetBody.velocity.set(0, targetBody.velocity.y, 0); // Para movimento para frente
-            targetBody.angularVelocity.set(Math.random(), Math.random(), Math.random()); // Dá um giro aleatório
+        if (event.body === helloKitty) {
+            helloKitty.velocity.set(0, helloKitty.velocity.y, 0); // Para movimento para frente
+            helloKitty.angularVelocity.set(Math.random(), Math.random(), Math.random()); // Dá um giro aleatório
         }
     });
 });

@@ -1,11 +1,11 @@
 Model Information:
-* title:	Hello Kitty sanrio new version (3D Rigged)
-* source:	https://sketchfab.com/3d-models/hello-kitty-sanrio-new-version-3d-rigged-206076bf9fc14bdc914a6560953ae3ec
-* author:	RIK Cyprus 12 (https://sketchfab.com/giorgoskyriacou2009)
+* title:	M4_Cute
+* source:	https://sketchfab.com/3d-models/m4-cute-f5f7ed3cf5c749ef9617efd5b730c2de
+* author:	Nazar Romanenko (https://sketchfab.com/Nazar_Romanenko)
 
 Model License:
 * license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 * requirements:	Author must be credited. Commercial use is allowed.
 
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
-This work is based on "Hello Kitty sanrio new version (3D Rigged)" (https://sketchfab.com/3d-models/hello-kitty-sanrio-new-version-3d-rigged-206076bf9fc14bdc914a6560953ae3ec) by RIK Cyprus 12 (https://sketchfab.com/giorgoskyriacou2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+This work is based on "M4_Cute" (https://sketchfab.com/3d-models/m4-cute-f5f7ed3cf5c749ef9617efd5b730c2de) by Nazar Romanenko (https://sketchfab.com/Nazar_Romanenko) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
