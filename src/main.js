@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
 import {createWorld} from './level_design.js';
 import { createHelloKitty, helloKitty, helloKittyBody } from './enemies.js';
+import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
 
 // Configuração da cena
 const scene = new THREE.Scene();
@@ -26,6 +27,24 @@ const world = createWorld(scene);
 
 // Adiciona Hello Kitty ao mundo
 createHelloKitty(scene, world);
+
+// Variável para garantir que a música só toque uma vez
+let musicPlayed = false;
+
+// Espera o usuário clicar na tela para tocar a música, mas apenas uma vez
+document.addEventListener('click', () => {
+    if (!musicPlayed) {
+        playBackgroundMusic(); // Toca a música pela primeira vez
+        musicPlayed = true;     // Marca que a música já foi tocada
+    }
+});
+
+// Desativa a música quando a tecla 'm' é pressionada
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'm') {  // Verifica se a tecla pressionada foi 'm'
+        stopBackgroundMusic();
+    }
+});
 
 // Carregar o modelo da arma
 let gunMesh;
@@ -52,6 +71,9 @@ weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
 
 // Disparo ao clicar
 window.addEventListener('click', () => {
+    // Toca o som de tiro
+    playGunshotSound();
+
     // Geometria e material do projétil com efeito de traçador rosa e brilho
     const projectileGeometry = new THREE.SphereGeometry(0.35, 16, 16); // Esfera pequena
     const projectileMaterial = new THREE.MeshStandardMaterial({ 
