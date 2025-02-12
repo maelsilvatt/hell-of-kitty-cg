@@ -1,0 +1,12 @@
+{
+    "name": "fps-simples",
+    "version": "1.0.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "serve": "vite preview"
+    },
+    "dependencies": {
+        "cannon-es": "^0.20.0"
+    }
+}
