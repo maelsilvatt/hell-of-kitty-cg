@@ -192,7 +192,6 @@ window.addEventListener('click', () => {
         }
     });
 });
-  
 
 // Loop de animação
 function animate() {
