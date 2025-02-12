@@ -4,27 +4,63 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Configuração da cena
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
+scene.background = new THREE.Color(0xff69b4); // Rosa vibrante
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1.5, 5);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 5, 20);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Iluminação
+const ambientLight = new THREE.AmbientLight(0xffaacc, 0.8);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+directionalLight.position.set(5, 20, 5);
+scene.add(directionalLight);
+
 // Mundo da física
 const world = new CANNON.World();
 world.gravity.set(0, -9.82, 0);
 
+const material = new CANNON.Material();
+
+// Criando as paredes e o chão
+const wallColor = 0xff1493; // Rosa mais vibrante
+const floorColor = 0xff6eb4; // Rosa ainda mais forte
+const wallMaterial = new THREE.MeshStandardMaterial({ color: wallColor });
+const floorMaterial = new THREE.MeshStandardMaterial({ color: floorColor });
+
+const wallSize = { width: 50, height: 10, depth: 0.2 };
+const floorSize = { width: 50, height: 50 };
+
 // Chão
-const groundMaterial = new CANNON.Material();
-const groundBody = new CANNON.Body({ mass: 0, shape: new CANNON.Plane(), material: groundMaterial });
-groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-world.addBody(groundBody);
-const groundMesh = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshStandardMaterial({ color: 0x333333 }));
-groundMesh.rotation.x = -Math.PI / 2;
-scene.add(groundMesh);
+const floorBody = new CANNON.Body({ mass: 0, shape: new CANNON.Plane(), material });
+floorBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+world.addBody(floorBody);
+const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(floorSize.width, floorSize.height), floorMaterial);
+floorMesh.rotation.x = -Math.PI / 2;
+scene.add(floorMesh);
+
+// Criar função para paredes
+function createWall(x, y, z, rotationY = 0) {
+    const wallBody = new CANNON.Body({ mass: 0, shape: new CANNON.Box(new CANNON.Vec3(wallSize.width / 2, wallSize.height / 2, wallSize.depth / 2)), material });
+    wallBody.position.set(x, y, z);
+    world.addBody(wallBody);
+
+    const wallMesh = new THREE.Mesh(new THREE.BoxGeometry(wallSize.width, wallSize.height, wallSize.depth), wallMaterial);
+    wallMesh.position.set(x, y, z);
+    wallMesh.rotation.y = rotationY;
+    scene.add(wallMesh);
+}
+
+// Criando as paredes
+createWall(0, 5, -25); // Parede de trás
+createWall(0, 5, 25); // Parede da frente
+createWall(-25, 5, 0, Math.PI / 2); // Parede esquerda
+createWall(25, 5, 0, Math.PI / 2); // Parede direita
 
 let helloKitty; // Declarando a variável no escopo global
 let targetBody; // Corpo físico no CANNON.js
@@ -44,7 +80,7 @@ loader.load('models/hello kitty/scene.gltf', function (gltf) {
     console.error('Erro ao carregar modelo:', error);
 });
 
-
+// Hello Kitty
 const helloKittyShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)); // Ajuste conforme o tamanho do modelo
 const helloKittyBody = new CANNON.Body({ mass: 5 });
 helloKittyBody.addShape(helloKittyShape);
@@ -53,12 +89,6 @@ helloKittyBody.velocity.set(0, 0, 1);
 helloKittyBody.linearDamping = 0.1;
 helloKittyBody.angularDamping = 0.2;
 world.addBody(helloKittyBody);
-
-
-// Luz
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5, 5, 5);
-scene.add(light);
 
 // Variáveis de controle de movimento e câmera
 const keys = { w: false, a: false, s: false, d: false };
