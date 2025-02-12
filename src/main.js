@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import Stats from 'stats.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+// Monitor de desempenho (FPS)]
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 // Configuração da cena
 const scene = new THREE.Scene();
@@ -62,16 +67,19 @@ createWall(0, 5, 25); // Parede da frente
 createWall(-25, 5, 0, Math.PI / 2); // Parede esquerda
 createWall(25, 5, 0, Math.PI / 2); // Parede direita
 
-let helloKitty; // Declarando a variável no escopo global
-let targetBody; // Corpo físico no CANNON.js
+// Adicionando a Hello Kitty à cena
+let helloKitty;
+let helloKittyBody; // Mantendo referência global ao corpo físico
 
 const loader = new GLTFLoader();
 loader.load('models/hello kitty/scene.gltf', function (gltf) {
-    helloKitty = gltf.scene; // Agora está no escopo global
+    helloKitty = gltf.scene;
 
-    // Ajuste o tamanho, posição e rotação conforme necessário
+    // Ajuste do tamanho (3 metros de altura)
     helloKitty.scale.set(3, 3, 3);
-    helloKitty.position.set(0, 0, -5);
+
+    // Ajustando a posição inicial
+    helloKitty.position.set(0, 1.5, -5); // Centralizando na base
     helloKitty.rotation.y = Math.PI;
 
     // Adiciona à cena
@@ -80,14 +88,16 @@ loader.load('models/hello kitty/scene.gltf', function (gltf) {
     console.error('Erro ao carregar modelo:', error);
 });
 
-// Hello Kitty
-const helloKittyShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)); // Ajuste conforme o tamanho do modelo
-const helloKittyBody = new CANNON.Body({ mass: 5 });
+// Criando a física da Hello Kitty (corpo físico)
+const helloKittyShape = new CANNON.Box(new CANNON.Vec3(1.5, 1.5, 1.5)); // Ajuste para o tamanho real
+helloKittyBody = new CANNON.Body({
+    mass: 5, // Massa ajustada para o tamanho maior
+    position: new CANNON.Vec3(0, 1.5, -5), // Inicializa posição correta
+});
 helloKittyBody.addShape(helloKittyShape);
-helloKittyBody.position.set(0, 0, -4);
-helloKittyBody.velocity.set(0, 0, 1);
-helloKittyBody.linearDamping = 0.1;
-helloKittyBody.angularDamping = 0.2;
+helloKittyBody.linearDamping = 0.2; // Resistência ao movimento
+helloKittyBody.angularDamping = 0.3; // Evita giros excessivos
+
 world.addBody(helloKittyBody);
 
 // Variáveis de controle de movimento e câmera
@@ -189,6 +199,8 @@ function animate() {
     requestAnimationFrame(animate);
     world.step(1 / 60);
 
+    stats.update();  // Atualiza o contador de FPS
+
     // Movimentação WASD
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
@@ -206,6 +218,7 @@ function animate() {
     
     // Sincroniza a posição e rotação do modelo 3D com o corpo físico
     if (helloKitty) {
+        // Sincroniza a posição e rotação do modelo 3D com o corpo físico
         helloKitty.position.copy(helloKittyBody.position);
         helloKitty.quaternion.copy(helloKittyBody.quaternion);
     }
