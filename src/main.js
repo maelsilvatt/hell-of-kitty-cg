@@ -39,10 +39,10 @@ function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 10) {
 const numKitties = 5;
 for (let i = 0; i < numKitties; i++) {
     addHelloKitty(scene, world, camera);
-}
 
-// DEBUG
-debugKitties(kitties);
+    // DEBUG
+    kitty.initKittyDebugCube();
+}
 
 // Variável para garantir que a música só toque uma vez
 let musicPlayed = true; // desativei por debug
@@ -235,7 +235,7 @@ function animate() {
         // DEBUG
 
         // Atualiza o cubo de debug
-        updateDebugCube(kitty);
+        kitty.updateDebugCube();
 
         // Se a kitty estiver morta, limpa o cubo de debug1
         if (kitty.isDead || kitty.life < 1){

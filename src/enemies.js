@@ -14,7 +14,9 @@ export class HelloKitty {
         this.helloKitty = null;
         this.lifeBar = null;
         this.body = null;
-        this.debugCube = null;
+
+        // DEBUG
+        this.debugCube = null; 
 
         this.init();
     }
