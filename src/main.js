@@ -3,7 +3,7 @@ import * as CANNON from 'cannon-es';
 import Stats from 'stats.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
-import {createWorld} from './level_design.js';
+import {createWorld, setupLighting} from './level_design.js';
 import { createHelloKitty, helloKitty, helloKittyBody, updateHelloKittyMovement, decreaseLife} from './enemies.js';
 import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
 
@@ -28,27 +28,29 @@ const world = createWorld(scene);
 // Adiciona Hello Kitty ao mundo
 createHelloKitty(scene, world, camera);
 
-// // Variável para garantir que a música só toque uma vez
-// let musicPlayed = false;
+// Variável para garantir que a música só toque uma vez
+let musicPlayed = true; // desativei por debug
 
-// // Espera o usuário clicar na tela para tocar a música, mas apenas uma vez
-// document.addEventListener('click', () => {
-//     if (!musicPlayed) {
-//         playBackgroundMusic(); // Toca a música pela primeira vez
-//         musicPlayed = true;     // Marca que a música já foi tocada
-//     }
-// });
+// Espera o usuário clicar na tela para tocar a música, mas apenas uma vez
+document.addEventListener('click', () => {
+    if (!musicPlayed) {
+        playBackgroundMusic(); // Toca a música pela primeira vez
+        musicPlayed = true;     // Marca que a música já foi tocada
+    }
+});
 
-// // Desativa a música quando a tecla 'm' é pressionada
-// document.addEventListener('keydown', (event) => {
-//     if (event.key === 'm') {  // Verifica se a tecla pressionada foi 'm'
-//         stopBackgroundMusic();
-//     }
-// });
+// Desativa a música quando a tecla 'm' é pressionada
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'm') {  // Verifica se a tecla pressionada foi 'm'
+        stopBackgroundMusic();
+    }
+});
 
 // Carregar o modelo da arma
 let gunMesh;
 let projectileBody;
+const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
+setupLighting(weaponScene);
 
 const weapon_loader = new GLTFLoader();
 weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
@@ -62,16 +64,14 @@ weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
     // Posicionamento da arma no canto direito e um pouco abaixo
     gunMesh.position.set(2.3, -2.3, -5.5); 
     
-    camera.add(gunMesh); // Adiciona a arma à câmera
-    scene.add(camera);
+    weaponScene.add(gunMesh); // Adiciona a arma na cena separada
     
     console.log('Arma carregada com sucesso!');
 }, (error) => {
     console.error('Erro ao carregar o modelo da arma:', error);
 });
 
-// Disparo ao clicar
-window.addEventListener('click', () => {
+function shoot() {
     // Toca o som de tiro
     playGunshotSound();
 
@@ -108,7 +108,7 @@ window.addEventListener('click', () => {
     direction.x -= 0.3;
     
     // Aplicar velocidade na direção que a arma está apontando
-    let fire_vel = 100;
+    const fire_vel = 100;
 
     const velocity = new CANNON.Vec3(direction.x * fire_vel, direction.y * fire_vel, direction.z * fire_vel);
     projectileBody.velocity.copy(velocity);
@@ -129,10 +129,16 @@ window.addEventListener('click', () => {
         removeProjectile();
     }, 3000); // 3 segundos
 
+    // Função para remover o projétil
     function removeProjectile() {
         world.removeBody(projectileBody);
         scene.remove(projectileMesh);
     }
+}
+
+// Disparo ao clicar
+window.addEventListener('click', () => {
+    shoot();
 });
 
 // Adicionando um listener para colisões
@@ -143,8 +149,51 @@ function checkCollisions() {
     if (!helloKittyBody || !projectileBody) return;
 
     // Verificar se o projétil colidiu com a hitbox da Hello Kitty
-    if (projectileBody && helloKittyBody && projectileBody.position.distanceTo(helloKittyBody.position) < (projectileBody.shapes[0].radius + helloKittyBody.shapes[0].halfExtents.x)) {
-        decreaseLife(1);
+    const distance = projectileBody.position.distanceTo(helloKittyBody.position);
+    
+    // Somar os raios (ou os tamanhos) das hitboxes para garantir que a colisão será detectada corretamente
+    const collisionDistance = projectileBody.shapes[0].radius + helloKittyBody.shapes[0].halfExtents.x;
+
+    if (distance < collisionDistance) {
+        console.log("Colisão detectada!");
+        decreaseLife(1);  // Diminui a vida da Hello Kitty
+        removeProjectile(); // Remove o projétil após a colisão
+    }
+}
+
+// Função para remover o projétil
+function removeProjectile() {
+    world.removeBody(projectileBody);
+    scene.remove(projectileMesh);
+}
+
+// Função para controlar o controle de PS4
+let yaw = 0;
+function handleGamepadInput() {
+    const gamepad = navigator.getGamepads()[0]; // Pega o primeiro controle conectado
+
+    if (gamepad) {
+        // Analógico esquerdo para movimentação
+        const leftStickX = gamepad.axes[0]; // Eixo X do analógico esquerdo
+        const leftStickY = gamepad.axes[1]; // Eixo Y do analógico esquerdo
+
+        // Movimentação
+        const direction = new THREE.Vector3();
+        direction.z = leftStickY; // Frente/trás
+        direction.x = leftStickX; // Esquerda/direita
+        camera.position.addScaledVector(direction, moveSpeed);
+
+        // Analógico direito para controlar a câmera
+        const rightStickX = gamepad.axes[2]; // Eixo X do analógico direito
+        const rightStickY = gamepad.axes[3]; // Eixo Y do analógico direito
+
+        yaw += rightStickX * 0.1; // Rotação horizontal da câmera
+        camera.rotation.set(rightStickY * 0.1, yaw, 0); // Rotação vertical da câmera
+
+        // R2 para disparar
+        if (gamepad.buttons[7].pressed) { // R2 está no índice 7
+            shoot();
+        }
     }
 }
 
@@ -169,6 +218,8 @@ function animate() {
     if (keys.a) camera.position.addScaledVector(right, moveSpeed);
     if (keys.d) camera.position.addScaledVector(right, -moveSpeed);
 
+    // Verifica se o controle está conectado e processa a entrada
+    handleGamepadInput();
     
     // Sincroniza a posição e rotação do modelo 3D com o corpo físico
     if (helloKitty) {
@@ -181,6 +232,15 @@ function animate() {
     updateHelloKittyMovement();
     
     renderer.render(scene, camera);
+
+    // Sincronizar cena da arma com a câmera
+    weaponScene.position.copy(camera.position);
+    weaponScene.quaternion.copy(camera.quaternion);
+
+    // Renderiza a cena da arma por cima
+    renderer.autoClear = false;
+    renderer.clearDepth(); // Limpa o buffer de profundidade para evitar clipping
+    renderer.render(weaponScene, camera);
 }
 
 animate();

@@ -9,7 +9,7 @@ let helloKitty;
 let helloKittyBody; // Referência ao corpo físico
 let player; // Referência ao jogador
 let hello_kitty_size = 6;
-let helloKittyLife = 0;  // HP inicial
+let helloKittyLife = 5;  // HP inicial
 let lifeBar;  // Referência à barra de vida
 let lifeBarMaterial;  // Material da barra de vida
 let lifeBarGeometry;  // Geometria da barra de vida
@@ -104,7 +104,7 @@ export function updateHelloKittyMovement() {
     const enemyPos = helloKittyBody.position;
 
     const distanceToPlayer = playerPos.distanceTo(enemyPos);
-    const minDistance = 2;
+    const minDistance = 4;
 
     if (distanceToPlayer < minDistance) {
         const direction = new CANNON.Vec3();
