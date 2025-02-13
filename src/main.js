@@ -4,7 +4,7 @@ import Stats from 'stats.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
 import {createWorld, setupLighting} from './level_design.js';
-import { createHelloKitty, helloKitty, helloKittyBody, updateHelloKittyMovement, decreaseLife} from './enemies.js';
+import { HelloKitty } from './enemies.js';
 import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
 
 // Configuração da cena
@@ -26,7 +26,7 @@ document.body.appendChild(stats.dom);
 const world = createWorld(scene);
 
 // Adiciona Hello Kitty ao mundo
-createHelloKitty(scene, world, camera);
+const kitty1 = new HelloKitty(scene, world, camera, 16);
 
 // Variável para garantir que a música só toque uma vez
 let musicPlayed = true; // desativei por debug
@@ -146,17 +146,17 @@ world.addEventListener('postStep', checkCollisions);
 
 // Função para verificar se o projétil atingiu a Hello Kitty
 function checkCollisions() {
-    if (!helloKittyBody || !projectileBody) return;
+    if (!kitty1.body || !projectileBody) return;
 
     // Verificar se o projétil colidiu com a hitbox da Hello Kitty
-    const distance = projectileBody.position.distanceTo(helloKittyBody.position);
+    const distance = projectileBody.position.distanceTo(kitty1.body.position);
     
     // Somar os raios (ou os tamanhos) das hitboxes para garantir que a colisão será detectada corretamente
-    const collisionDistance = projectileBody.shapes[0].radius + helloKittyBody.shapes[0].halfExtents.x;
+    const collisionDistance = projectileBody.shapes[0].radius + kitty1.body.shapes[0].halfExtents.x;
 
     if (distance < collisionDistance) {
         console.log("Colisão detectada!");
-        decreaseLife(1);  // Diminui a vida da Hello Kitty
+        kitty1.decreaseLife(1);  // Diminui a vida da Hello Kitty
         removeProjectile(); // Remove o projétil após a colisão
     }
 }
@@ -221,15 +221,15 @@ function animate() {
     // Verifica se o controle está conectado e processa a entrada
     handleGamepadInput();
     
-    // Sincroniza a posição e rotação do modelo 3D com o corpo físico
-    if (helloKitty) {
+    //Sincroniza a posição e rotação do modelo 3D com o corpo físico
+    if (kitty1) {
         // Sincroniza a posição e rotação do modelo 3D com o corpo físico
-        helloKitty.position.copy(helloKittyBody.position);
-        helloKitty.quaternion.copy(helloKittyBody.quaternion);
+        kitty1.body.position.copy(kitty1.body.position);
+        kitty1.body.quaternion.copy(kitty1.body.quaternion);
     }
 
     // Atualizando o movimento do inimigo
-    updateHelloKittyMovement();
+    kitty1.updateMovement(camera);
     
     renderer.render(scene, camera);
 
