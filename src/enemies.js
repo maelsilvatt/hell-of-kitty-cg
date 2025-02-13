@@ -128,7 +128,26 @@ export function updateHelloKittyMovement() {
         helloKittyBody.applyForce(direction.scale(forceMagnitude), helloKittyBody.position);
     }
 
-    helloKitty.lookAt(player.position);
+    // Pegar posição do jogador e da Hello Kitty
+    const kittyPos = helloKitty.position.clone();
+    const playerPosClone = player.position.clone();
+
+    // Ignorar a diferença de altura (Eixo Y)
+    kittyPos.y = 0;
+    playerPosClone.y = 0;
+
+    // Calcular a direção no plano XZ
+    const direction = new THREE.Vector3();
+    direction.subVectors(playerPosClone, kittyPos).normalize();
+
+    // Calcular ângulo no eixo Y (usando atan2)
+    let angle = Math.atan2(direction.x, direction.z);
+
+    // 🔹 Ajuste de rotação se a Hello Kitty estiver desalinhada
+    angle -= Math.PI / 2; // Tente trocar para Math.PI ou -Math.PI/2 se necessário
+
+    // Aplicar a rotação apenas no eixo Y
+    helloKitty.rotation.set(0, angle, 0);
 }
 
 // Exporta as variáveis para uso no main.js
