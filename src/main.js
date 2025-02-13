@@ -25,8 +25,21 @@ document.body.appendChild(stats.dom);
 // Criação do mundo
 const world = createWorld(scene);
 
-// Adiciona Hello Kitty ao mundo
-const kitty1 = new HelloKitty(scene, world, camera, 16);
+// Array para armazenar as Hello Kitties
+let kitties = [];
+
+function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 10) {
+    // Criar uma nova instância de Hello Kitty
+    const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
+
+    // Adicionar a nova Hello Kitty ao array
+    kitties.push(newKitty);
+}
+
+const numKitties = 10;
+for (let i = 0; i < numKitties; i++) {
+    addHelloKitty(scene, world, camera);
+}
 
 // Variável para garantir que a música só toque uma vez
 let musicPlayed = true; // desativei por debug
@@ -141,32 +154,6 @@ window.addEventListener('click', () => {
     shoot();
 });
 
-// Adicionando um listener para colisões
-world.addEventListener('postStep', checkCollisions);
-
-// Função para verificar se o projétil atingiu a Hello Kitty
-function checkCollisions() {
-    if (!kitty1.body || !projectileBody) return;
-
-    // Verificar se o projétil colidiu com a hitbox da Hello Kitty
-    const distance = projectileBody.position.distanceTo(kitty1.body.position);
-    
-    // Somar os raios (ou os tamanhos) das hitboxes para garantir que a colisão será detectada corretamente
-    const collisionDistance = projectileBody.shapes[0].radius + kitty1.body.shapes[0].halfExtents.x;
-
-    if (distance < collisionDistance) {
-        console.log("Colisão detectada!");
-        kitty1.decreaseLife(1);  // Diminui a vida da Hello Kitty
-        removeProjectile(); // Remove o projétil após a colisão
-    }
-}
-
-// Função para remover o projétil
-function removeProjectile() {
-    world.removeBody(projectileBody);
-    scene.remove(projectileMesh);
-}
-
 // Função para controlar o controle de PS4
 let yaw = 0;
 function handleGamepadInput() {
@@ -220,16 +207,15 @@ function animate() {
 
     // Verifica se o controle está conectado e processa a entrada
     handleGamepadInput();
-    
-    //Sincroniza a posição e rotação do modelo 3D com o corpo físico
-    if (kitty1) {
-        // Sincroniza a posição e rotação do modelo 3D com o corpo físico
-        kitty1.body.position.copy(kitty1.body.position);
-        kitty1.body.quaternion.copy(kitty1.body.quaternion);
-    }
 
-    // Atualizando o movimento do inimigo
-    kitty1.updateMovement(camera);
+    // Atualizar todas as Hello Kitties
+    for (const kitty of kitties) {
+        kitty.updateMovement(camera);
+
+        // Sincroniza a posição e rotação do modelo 3D com o corpo físico
+        kitty.body.position.copy(kitty.body.position);
+        kitty.body.quaternion.copy(kitty.body.quaternion);
+    }
     
     renderer.render(scene, camera);
 
