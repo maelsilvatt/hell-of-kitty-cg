@@ -14,6 +14,7 @@ export class HelloKitty {
         this.helloKitty = null;
         this.lifeBar = null;
         this.body = null;
+        this.debugCube = null;
 
         this.init();
     }
@@ -46,8 +47,6 @@ export class HelloKitty {
             enemyGroup.add(this.lifeBar);
             this.scene.add(enemyGroup);
     
-            console.log("Modelo carregado:", this.helloKitty);
-            console.log("Barra de vida adicionada:", this.lifeBar);
         }, undefined, (error) => {
             console.error('Erro ao carregar modelo:', error);
         });
@@ -151,4 +150,50 @@ export class HelloKitty {
         this.lifeBar.lookAt(this.player.position);
         this.lifeBar.position.set(this.helloKitty.position.x, this.helloKitty.position.y + this.size, this.helloKitty.position.z);
     }     
+
+    // DEBUG
+    initKittyDebugCube(){
+        // Inicializando o cubo de debug na primeira vez que a Kitty é criada ou quando necessário
+        if (!this.debugCube) {  // Verifica se o cubo de debug já foi criado
+            this.debugCube = this.createDebugCube(this.body);  // Cria o cubo de debug
+            scene.add(this.debugCube);  // Adiciona à cena
+        }
+    }
+
+    updateDebugCube(){
+        if (this.debugCube) {
+            const aabb = this.body.aabb;  // Obtém a AABB do corpo da kitty
+            const position = aabb.center;  // Posição do centro da AABB
+
+            // Atualiza a posição do cubo de debug para coincidir com o corpo da Kitty
+            this.debugCube.position.set(position.x, position.y, position.z);
+        }
+    }
+
+    createDebugCube() {
+        const aabb = this.body.aabb;
+        
+        // Calcular o tamanho da AABB
+        const size = new THREE.Vector3(
+            aabb.max.x - aabb.min.x,
+            aabb.max.y - aabb.min.y,
+            aabb.max.z - aabb.min.z
+        );
+
+        // Cria uma geometria de linha (com bordas) com as dimensões da AABB
+        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+        const edges = new THREE.EdgesGeometry(geometry);  // Gera as arestas
+        const material = new THREE.LineBasicMaterial({ color: 0xffffff });  // Linha branca
+        const cube = new THREE.LineSegments(edges, material);
+
+        // Posiciona o cubo de acordo com o centro da AABB do corpo
+        const position = new THREE.Vector3(
+            (aabb.min.x + aabb.max.x) / 2,
+            (aabb.min.y + aabb.max.y) / 2,
+            (aabb.min.z + aabb.max.z) / 2
+        );
+        cube.position.set(position.x, position.y, position.z);
+
+        return cube;
+    }
 }

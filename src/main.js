@@ -41,6 +41,9 @@ for (let i = 0; i < numKitties; i++) {
     addHelloKitty(scene, world, camera);
 }
 
+// DEBUG
+debugKitties(kitties);
+
 // Variável para garantir que a música só toque uma vez
 let musicPlayed = true; // desativei por debug
 
@@ -83,6 +86,7 @@ weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
     console.error('Erro ao carregar o modelo da arma:', error);
 });
 
+// Função responsável pelos disparos e verificações de colisões entre os projéteis e as kitties
 function shoot() {
     // Toca o som de tiro
     playGunshotSound();
@@ -103,7 +107,7 @@ function shoot() {
     // Corpo do projétil no mundo de física (CANNON.js)
     const projectileBody = new CANNON.Body({
         mass: 5,
-        shape: new CANNON.Sphere(0.2),
+        shape: new CANNON.Box(new CANNON.Vec3(0.2, 0.2, 0.5)),
     });
 
     const muzzlePosition = new THREE.Vector3(.65, 0.01, -.0045);
@@ -125,9 +129,20 @@ function shoot() {
     const velocity = new CANNON.Vec3(direction.x * fire_vel, direction.y * fire_vel, direction.z * fire_vel);
     projectileBody.velocity.copy(velocity);
 
-    // Atualizando a posição do projétil
+    // Atualiza o projétil e verifica se houve colisão com alguma kitty
     function updateProjectile() {
         projectileMesh.position.copy(projectileBody.position);
+    
+        // Verifica colisão com cada Kitty
+        for (const kitty of kitties) {
+            if (checkCollision(projectileBody, kitty.body)) { 
+                // kitty.decreaseLife(1); // diminui a quantidade de vida da kitty
+                console.warn("Colisão funcionou!.");
+                break;
+            }
+        }
+    
+        // Remove projétil caso saia da área
         if (projectileBody.position.z < -50) {
             removeProjectile();
         } else {
@@ -152,6 +167,11 @@ function shoot() {
 window.addEventListener('click', () => {
     shoot();
 });
+
+// Função para verificar colisões entre dois objetos
+function checkCollision(body1, body2) {
+    return body1.aabb.overlaps(body2.aabb);
+}
 
 // Função para controlar o controle de PS4
 let yaw = 0;
@@ -209,7 +229,21 @@ function animate() {
 
     // Atualizar todas as Hello Kitties
     for (const kitty of kitties) {
+        // Atualiza o movimento da kitty
         kitty.updateMovement(camera);
+
+        // DEBUG
+
+        // Atualiza o cubo de debug
+        updateDebugCube(kitty);
+
+        // Se a kitty estiver morta, limpa o cubo de debug1
+        if (kitty.isDead || kitty.life < 1){
+            if (kitty.debugCube) {
+                scene.remove(kitty.debugCube);  // Remove o cubo de debug da cena
+                kitty.debugCube = null;  // Limpa a referência
+            }
+        }
     }
     
     renderer.render(scene, camera);
