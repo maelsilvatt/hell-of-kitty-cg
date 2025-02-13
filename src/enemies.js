@@ -63,7 +63,7 @@ export class HelloKitty {
         const position = new CANNON.Vec3(this.player.position.x + offsetX, 1.5, this.player.position.z + offsetZ);
 
         const shape = new CANNON.Box(new CANNON.Vec3(1.5, 1.5, 1.5));
-        this.body = new CANNON.Body({ mass: 5, position, linearDamping: 0.5, angularDamping: 0.8 });
+        this.body = new CANNON.Body({ mass: 5, position, linearDamping: 0.1, angularDamping: 0.8 });
         this.body.addShape(shape);
         this.world.addBody(this.body);
 
@@ -99,30 +99,44 @@ export class HelloKitty {
         const playerPos = new CANNON.Vec3(player.position.x, player.position.y, player.position.z);
         const enemyPos = this.body.position;
         const distanceToPlayer = playerPos.distanceTo(enemyPos);
-        const minDistance = 4;
+        const minDistance = 2;
     
         let direction = new CANNON.Vec3();
-        if (distanceToPlayer < minDistance) {
-            direction.set(enemyPos.x - playerPos.x, 0, enemyPos.z - playerPos.z);
-        } else {
+    
+        // Lógica de movimento mais robusta
+        if (distanceToPlayer > minDistance) {
+            // Vai atrás do jogador se a distância for maior que o mínimo
             direction.set(playerPos.x - enemyPos.x, 0, playerPos.z - enemyPos.z);
+        } else if (distanceToPlayer < minDistance) {
+            // Afasta-se do jogador se estiver muito perto
+            direction.set(enemyPos.x - playerPos.x, 0, enemyPos.z - playerPos.z);
         }
     
+        // Normaliza a direção para garantir que o movimento seja consistente
         direction.normalize();
-        const forceMagnitude = this.body.mass * this.speed;
-        
-        // Aplicar força corretamente
+    
+        // A magnitude da força será ajustada em função da distância
+        let forceMagnitude = this.body.mass * this.speed;
+    
+        // Se a distância for muito pequena, aplicar um valor mínimo de força
+        if (distanceToPlayer < minDistance && forceMagnitude < 5) {
+            forceMagnitude = 20;  // Define um valor mínimo para garantir o movimento
+        }
+    
+        // Aplique a força considerando a direção e a intensidade
         const force = new CANNON.Vec3(
             direction.x * forceMagnitude,
-            direction.y * forceMagnitude,
+            0,  // Manter o movimento no plano XZ
             direction.z * forceMagnitude
         );
+    
+        // Aplica a força na física
         this.body.applyForce(force, this.body.position);
     
         // Ajuste a rotação da boneca para olhar para o player
         const kittyPos = this.helloKitty.position.clone();
         const playerPosClone = player.position.clone();
-        kittyPos.y = 0;
+        kittyPos.y = 0; // Ignorar a altura para rotação
         playerPosClone.y = 0;
     
         const lookDirection = new THREE.Vector3();
@@ -133,8 +147,8 @@ export class HelloKitty {
         // Ajustar a posição da Hello Kitty para seguir a física
         this.helloKitty.position.copy(this.body.position);
     
-        // Ajustar barra de vida para olhar para o player
+        // Ajustar a barra de vida para olhar para o player
         this.lifeBar.lookAt(this.player.position);
         this.lifeBar.position.set(this.helloKitty.position.x, this.helloKitty.position.y + this.size, this.helloKitty.position.z);
-    }    
+    }     
 }

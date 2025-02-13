@@ -36,7 +36,7 @@ function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 10) {
     kitties.push(newKitty);
 }
 
-const numKitties = 10;
+const numKitties = 5;
 for (let i = 0; i < numKitties; i++) {
     addHelloKitty(scene, world, camera);
 }
@@ -61,7 +61,6 @@ document.addEventListener('keydown', (event) => {
 
 // Carregar o modelo da arma
 let gunMesh;
-let projectileBody;
 const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
 setupLighting(weaponScene);
 
@@ -211,10 +210,6 @@ function animate() {
     // Atualizar todas as Hello Kitties
     for (const kitty of kitties) {
         kitty.updateMovement(camera);
-
-        // Sincroniza a posição e rotação do modelo 3D com o corpo físico
-        kitty.body.position.copy(kitty.body.position);
-        kitty.body.quaternion.copy(kitty.body.quaternion);
     }
     
     renderer.render(scene, camera);
