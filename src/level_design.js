@@ -63,7 +63,7 @@ export function createWalls(world, scene, material, wallSize, wallMaterial, room
     createWall(world, scene, material, wallSize, wallMaterial, room_size, 5, 0, Math.PI / 2); // Parede direita
 }
 
-export function createWorld(scene, room_size = 100) {
+export function createWorld(scene, room_size = 130) {
     // Configura o fundo da cena
     scene.background = new THREE.Color(0xff69b4); // Rosa vibrante
     

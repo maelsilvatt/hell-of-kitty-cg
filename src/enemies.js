@@ -64,7 +64,7 @@ export class HelloKitty {
         const position = new CANNON.Vec3(this.player.position.x + offsetX, this.size / 2, this.player.position.z + offsetZ);
 
         const shape = new CANNON.Box(new CANNON.Vec3(this.size / 4, this.size / 2, this.size / 4));
-        this.body = new CANNON.Body({ mass: 25, position, linearDamping: 0.1, angularDamping: 0.8 });
+        this.body = new CANNON.Body({ mass: 5, position, linearDamping: 0.4, angularDamping: 0.8 });
         this.body.addShape(shape);
         this.world.addBody(this.body);
 
@@ -78,8 +78,22 @@ export class HelloKitty {
         if (this.life <= 0) {
             this.life = 0;
             this.isDead = true;
-            this.body.velocity.set(0, 0, 0);
+        
+            // Zerar velocidade
+            this.body.velocity.set(0, this.body.velocity.y, 0); // Mantém a gravidade no eixo Y
             this.body.angularVelocity.set(0, 0, 0);
+        
+            // Permitir que a boneca tombe naturalmente
+            this.body.type = CANNON.Body.DYNAMIC;
+            this.body.allowSleep = false; // Impede que ela congele antes de cair
+
+            // Sincroniza a posição da boneca com o corpo físico
+            this.helloKitty.position.set(
+                this.body.position.x,
+                0.3,
+                this.body.position.z
+            );
+            this.helloKitty.rotation.x = -Math.PI / 2; // Rotaciona 90° no eixo X para deitar
         }
 
         const lifePercentage = this.life / 5;

@@ -28,7 +28,7 @@ const world = createWorld(scene);
 // Array para armazenar as Hello Kitties
 let kitties = [];
 
-function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 10) {
+function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 15) {
     // Criar uma nova instância de Hello Kitty
     const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
 
@@ -36,7 +36,7 @@ function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 10) {
     kitties.push(newKitty);
 }
 
-const numKitties = 5;
+const numKitties = 9;
 for (let i = 0; i < numKitties; i++) {
     addHelloKitty(scene, world, camera);
 
@@ -238,7 +238,9 @@ function animate() {
     // Atualizar todas as Hello Kitties
     for (const kitty of kitties) {
         // Atualiza o movimento da kitty
-        kitty.updateMovement(camera);
+        if (!kitty.isDead){
+            kitty.updateMovement(camera);
+        }
 
         // DEBUG
 
