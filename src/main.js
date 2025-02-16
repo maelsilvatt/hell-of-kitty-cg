@@ -6,6 +6,7 @@ import { keys, moveSpeed, setupControls } from './controls.js';
 import {createWorld, setupLighting} from './level_design.js';
 import { HelloKitty } from './enemies.js';
 import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
+import { Player } from './player_stats.js'
 
 // Configuração da cena
 const scene = new THREE.Scene();
@@ -24,6 +25,9 @@ document.body.appendChild(stats.dom);
 
 // Criação do mundo
 const world = createWorld(scene);
+
+// Criação do jogador
+const player = new Player(scene, world, camera);
 
 // Array para armazenar as Hello Kitties
 let kitties = [];
@@ -80,10 +84,6 @@ weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
     gunMesh.position.set(2.3, -2.3, -5.5); 
     
     weaponScene.add(gunMesh); // Adiciona a arma na cena separada
-    
-    console.log('Arma carregada com sucesso!');
-}, (error) => {
-    console.error('Erro ao carregar o modelo da arma:', error);
 });
 
 // Função responsável pelos disparos e verificações de colisões entre os projéteis e as kitties
@@ -160,7 +160,6 @@ function shoot() {
         // Verifica se colidiu com alguma Kitty
         for (const kitty of kitties) {
             if (collidedWith === kitty.body) {
-                console.warn("Atingiu uma Kitty!");
                 kitty.decreaseLife(1); // Diminui a vida da Kitty            
                 break;
             }
@@ -172,11 +171,6 @@ function shoot() {
 window.addEventListener('click', () => {
     shoot();
 });
-
-// Função para verificar colisões entre dois objetos
-function checkCollision(body1, body2) {
-    return body1.aabb.overlaps(body2.aabb);
-}
 
 // Função para controlar o controle de PS4
 let yaw = 0;
@@ -232,6 +226,9 @@ function animate() {
     // Verifica se o controle está conectado e processa a entrada
     handleGamepadInput();
 
+    // Sincronizar jogador com a caixa de colisáo
+    // player.updateBody(camera);
+
     // Atualizar todas as Hello Kitties
     for (const kitty of kitties) {
         // Atualiza o movimento da kitty
@@ -243,13 +240,21 @@ function animate() {
 
         // Atualiza o cubo de debug
         kitty.updateDebugCube();
+        // player.updateDebugCube();
 
-        // Se a kitty estiver morta, limpa o cubo de debug1
+        // Se a kitty estiver morta, limpa o cubo de debug
         if (kitty.isDead || kitty.life < 1){
             if (kitty.debugCube) {
                 scene.remove(kitty.debugCube);  // Remove o cubo de debug da cena
                 kitty.debugCube = null;  // Limpa a referência
             }
+        }
+
+        if(kitty.isDead){
+            // Remove a Kitty da cena
+            scene.remove(kitty.mesh);
+            scene.remove(kitty.debugCube);
+            world.removeBody(kitty.body);
         }
     }
     
