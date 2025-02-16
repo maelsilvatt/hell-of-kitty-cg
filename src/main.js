@@ -149,9 +149,7 @@ function shoot() {
 
     // Função para remover o projétil
     function removeProjectile() {
-        if (world.bodies.includes(projectileBody)) {
-            world.removeBody(projectileBody);
-        }
+        world.removeBody(projectileBody);
         scene.remove(projectileMesh);
     }
 
@@ -163,8 +161,7 @@ function shoot() {
         for (const kitty of kitties) {
             if (collidedWith === kitty.body) {
                 console.warn("Atingiu uma Kitty!");
-                kitty.decreaseLife(1); // Diminui a vida da Kitty
-                removeProjectile(); // Remove o projétil ao colidir
+                kitty.decreaseLife(1); // Diminui a vida da Kitty            
                 break;
             }
         }
