@@ -96,7 +96,7 @@ function shoot() {
     const projectileMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xFF1493, // Rosa
         emissive: 0xFF1493, // Emissão rosa
-        emissiveIntensity: 1, // Intensidade do brilho
+        emissiveIntensity: 10, // Intensidade do brilho
         metalness: 0.2, 
         roughness: 0.5 
     });
@@ -133,15 +133,6 @@ function shoot() {
     function updateProjectile() {
         projectileMesh.position.copy(projectileBody.position);
     
-        // Verifica colisão com cada Kitty
-        for (const kitty of kitties) {
-            if (checkCollision(projectileBody, kitty.body)) { 
-                // kitty.decreaseLife(1); // diminui a quantidade de vida da kitty
-                console.warn("Colisão funcionou!.");
-                break;
-            }
-        }
-    
         // Remove projétil caso saia da área
         if (projectileBody.position.z < -50) {
             removeProjectile();
@@ -158,9 +149,26 @@ function shoot() {
 
     // Função para remover o projétil
     function removeProjectile() {
-        world.removeBody(projectileBody);
+        if (world.bodies.includes(projectileBody)) {
+            world.removeBody(projectileBody);
+        }
         scene.remove(projectileMesh);
     }
+
+    // Adiciona um event listener para colisões
+    projectileBody.addEventListener("collide", (event) => {
+        const collidedWith = event.body; // Corpo que foi atingido
+
+        // Verifica se colidiu com alguma Kitty
+        for (const kitty of kitties) {
+            if (collidedWith === kitty.body) {
+                console.warn("Atingiu uma Kitty!");
+                kitty.decreaseLife(1); // Diminui a vida da Kitty
+                removeProjectile(); // Remove o projétil ao colidir
+                break;
+            }
+        }
+    });
 }
 
 // Disparo ao clicar
