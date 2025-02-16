@@ -61,10 +61,10 @@ export class HelloKitty {
         const distance = Math.random() * (maxDistance - minDistance) + minDistance;
         const offsetX = Math.cos(angle) * distance;
         const offsetZ = Math.sin(angle) * distance;
-        const position = new CANNON.Vec3(this.player.position.x + offsetX, 1.5, this.player.position.z + offsetZ);
+        const position = new CANNON.Vec3(this.player.position.x + offsetX, this.size / 2, this.player.position.z + offsetZ);
 
-        const shape = new CANNON.Box(new CANNON.Vec3(1.5, 1.5, 1.5));
-        this.body = new CANNON.Body({ mass: 5, position, linearDamping: 0.1, angularDamping: 0.8 });
+        const shape = new CANNON.Box(new CANNON.Vec3(this.size / 4, this.size / 2, this.size / 4));
+        this.body = new CANNON.Body({ mass: 25, position, linearDamping: 0.1, angularDamping: 0.8 });
         this.body.addShape(shape);
         this.world.addBody(this.body);
 
@@ -145,8 +145,12 @@ export class HelloKitty {
         let angle = Math.atan2(lookDirection.x, lookDirection.z) - Math.PI / 2;
         this.helloKitty.rotation.set(0, angle, 0);
     
-        // Ajustar a posição da Hello Kitty para seguir a física
-        this.helloKitty.position.copy(this.body.position);
+        // Sincroniza a posição da boneca com o corpo físico
+        this.helloKitty.position.set(
+            this.body.position.x,
+            this.body.position.y - this.size / 2,
+            this.body.position.z
+        );
     
         // Ajustar a barra de vida para olhar para o player
         this.lifeBar.lookAt(this.player.position);
@@ -170,12 +174,10 @@ export class HelloKitty {
     }
 
     createDebugCube() {
-        const size = this.size;
-
         // Cria uma geometria de linha (com bordas) com as dimensões do body
-        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-        const edges = new THREE.EdgesGeometry(geometry);  // Gera as arestas
-        const material = new THREE.LineBasicMaterial({ color: 0xffffff });  // Linha branca
+        const geometry = new THREE.BoxGeometry(this.size / 2, this.size, this.size / 2);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const material = new THREE.LineBasicMaterial({ color: 0xffffff });
         const cube = new THREE.LineSegments(edges, material);
 
         // Posiciona o cubo exatamente onde está o body

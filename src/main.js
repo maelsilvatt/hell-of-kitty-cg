@@ -28,7 +28,7 @@ const world = createWorld(scene);
 // Array para armazenar as Hello Kitties
 let kitties = [];
 
-function addHelloKitty(scene, world, camera, size = 1.5, life = 5, speed = 10) {
+function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 10) {
     // Criar uma nova instância de Hello Kitty
     const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
 
