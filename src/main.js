@@ -3,9 +3,9 @@ import * as CANNON from 'cannon-es';
 import Stats from 'stats.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
-import {createWorld, setupLighting} from './level_design.js';
+import { createWorld, setupLighting } from './level_design.js';
 import { HelloKitty } from './enemies.js';
-import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
+import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound } from './audio.js';
 
 // Configuração da cena
 const scene = new THREE.Scene();
@@ -22,250 +22,243 @@ document.body.appendChild(renderer.domElement);
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-// Criação do mundo
+// Criação do mundo físico
 const world = createWorld(scene);
 
 // Array para armazenar as Hello Kitties
 let kitties = [];
 
+// Função para adicionar uma Hello Kitty
 function addHelloKitty(scene, world, camera, size = 8, life = 5, speed = 15) {
-    // Criar uma nova instância de Hello Kitty
-    const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
-
-    // Adicionar a nova Hello Kitty ao array
-    kitties.push(newKitty);
+  const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
+  kitties.push(newKitty);
 }
 
-const numKitties = 9;
-for (let i = 0; i < numKitties; i++) {
+// --- Sistema de Rounds ---
+let round = 1;
+let roundInProgress = false;
+
+// Função para iniciar um round
+function startRound() {
+  console.log(`Iniciando Round ${round}`);
+  roundInProgress = true;
+  // Reinicia os inimigos para o novo round
+  kitties = [];
+
+  // Define a quantidade de inimigos com base no round (exemplo: round * 9)
+  const numKitties = round * 9;
+  for (let i = 0; i < numKitties; i++) {
     addHelloKitty(scene, world, camera);
-
-    // DEBUG
+    // Inicializa o cubo de debug se necessário
     kitties[i].initKittyDebugCube(scene);
+  }
 }
 
-// Variável para garantir que a música só toque uma vez
-let musicPlayed = true; // desativei por debug
+// Inicia o primeiro round
+startRound();
+// -------------------------
 
-// Espera o usuário clicar na tela para tocar a música, mas apenas uma vez
+// Variável para garantir que a música toque apenas uma vez (configuração de debug)
+let musicPlayed = true; 
+
+// Toca a música ao clicar na tela (apenas uma vez)
 document.addEventListener('click', () => {
-    if (!musicPlayed) {
-        playBackgroundMusic(); // Toca a música pela primeira vez
-        musicPlayed = true;     // Marca que a música já foi tocada
-    }
+  if (!musicPlayed) {
+    playBackgroundMusic();
+    musicPlayed = true;
+  }
 });
 
 // Desativa a música quando a tecla 'm' é pressionada
 document.addEventListener('keydown', (event) => {
-    if (event.key === 'm') {  // Verifica se a tecla pressionada foi 'm'
-        stopBackgroundMusic();
-    }
+  if (event.key === 'm') {
+    stopBackgroundMusic();
+  }
 });
 
-// Carregar o modelo da arma
+// Carrega o modelo da arma
 let gunMesh;
 const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
 setupLighting(weaponScene);
 
 const weapon_loader = new GLTFLoader();
 weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
-    gunMesh = gltf.scene;
-    let gun_size =  10;
-    gunMesh.scale.set(gun_size, gun_size, gun_size); // Ajuste do tamanho da arma
-    
-    // Rotação para inclinar levemente para a esquerda
-    gunMesh.rotation.set(0, 2/3.3 * Math.PI, 0);  
-
-    // Posicionamento da arma no canto direito e um pouco abaixo
-    gunMesh.position.set(2.3, -2.3, -5.5); 
-    
-    weaponScene.add(gunMesh); // Adiciona a arma na cena separada
-    
-    console.log('Arma carregada com sucesso!');
+  gunMesh = gltf.scene;
+  let gun_size = 10;
+  gunMesh.scale.set(gun_size, gun_size, gun_size);
+  gunMesh.rotation.set(0, (2 / 3.3) * Math.PI, 0);
+  gunMesh.position.set(2.3, -2.3, -5.5);
+  weaponScene.add(gunMesh);
+  console.log('Arma carregada com sucesso!');
 }, (error) => {
-    console.error('Erro ao carregar o modelo da arma:', error);
+  console.error('Erro ao carregar o modelo da arma:', error);
 });
 
-// Função responsável pelos disparos e verificações de colisões entre os projéteis e as kitties
+// Função responsável pelos disparos
 function shoot() {
-    // Toca o som de tiro
-    playGunshotSound();
+  playGunshotSound();
 
-    // Geometria e material do projétil com efeito de traçador rosa e brilho
-    const projectileGeometry = new THREE.SphereGeometry(0.35, 16, 16); // Esfera pequena
-    const projectileMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xFF1493, // Rosa
-        emissive: 0xFF1493, // Emissão rosa
-        emissiveIntensity: 10, // Intensidade do brilho
-        metalness: 0.2, 
-        roughness: 0.5 
-    });
-    const projectileMesh = new THREE.Mesh(projectileGeometry, projectileMaterial);
-    projectileMesh.rotation.x = Math.PI / 2; // Rotação inicial para que o projétil fique no eixo certo
-    scene.add(projectileMesh);
+  // Cria o projétil
+  const projectileGeometry = new THREE.SphereGeometry(0.35, 16, 16);
+  const projectileMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0xFF1493,
+    emissive: 0xFF1493,
+    emissiveIntensity: 10,
+    metalness: 0.2,
+    roughness: 0.5 
+  });
+  const projectileMesh = new THREE.Mesh(projectileGeometry, projectileMaterial);
+  projectileMesh.rotation.x = Math.PI / 2;
+  scene.add(projectileMesh);
 
-    // Corpo do projétil no mundo de física (CANNON.js)
-    const projectileBody = new CANNON.Body({
-        mass: 5,
-        shape: new CANNON.Box(new CANNON.Vec3(0.2, 0.2, 0.5)),
-    });
+  // Cria o corpo físico do projétil
+  const projectileBody = new CANNON.Body({
+    mass: 5,
+    shape: new CANNON.Box(new CANNON.Vec3(0.2, 0.2, 0.5)),
+  });
 
-    const muzzlePosition = new THREE.Vector3(.65, 0.01, -.0045);
-    gunMesh.localToWorld(muzzlePosition); // Converter para coordenadas globais
+  // Pega a posição do cano da arma
+  const muzzlePosition = new THREE.Vector3(0.65, 0.01, -0.0045);
+  gunMesh.localToWorld(muzzlePosition);
+  projectileBody.position.set(muzzlePosition.x, muzzlePosition.y, muzzlePosition.z);
+  world.addBody(projectileBody);
 
-    projectileBody.position.set(muzzlePosition.x, muzzlePosition.y, muzzlePosition.z); // Posicionando o projétil
-    world.addBody(projectileBody);
+  // Obtém a direção para disparo
+  const direction = new THREE.Vector3();
+  camera.getWorldDirection(direction);
+  direction.x -= 0.3;
+  
+  const fire_vel = 100;
+  const velocity = new CANNON.Vec3(direction.x * fire_vel, direction.y * fire_vel, direction.z * fire_vel);
+  projectileBody.velocity.copy(velocity);
 
-    // Obter a direção correta da arma
-    const direction = new THREE.Vector3();
-    camera.getWorldDirection(direction);
-
-    // Inverter o eixo (caso o modelo use o eixo X ou outro para frente)
-    direction.x -= 0.3;
-    
-    // Aplicar velocidade na direção que a arma está apontando
-    const fire_vel = 100;
-
-    const velocity = new CANNON.Vec3(direction.x * fire_vel, direction.y * fire_vel, direction.z * fire_vel);
-    projectileBody.velocity.copy(velocity);
-
-    // Atualiza o projétil e verifica se houve colisão com alguma kitty
-    function updateProjectile() {
-        projectileMesh.position.copy(projectileBody.position);
-    
-        // Remove projétil caso saia da área
-        if (projectileBody.position.z < -50) {
-            removeProjectile();
-        } else {
-            requestAnimationFrame(updateProjectile);
-        }
+  // Atualiza a posição do projétil e remove-o quando sair da área
+  function updateProjectile() {
+    projectileMesh.position.copy(projectileBody.position);
+    if (projectileBody.position.z < -50) {
+      removeProjectile();
+    } else {
+      requestAnimationFrame(updateProjectile);
     }
-    updateProjectile();
+  }
+  updateProjectile();
 
-    // Define um tempo de vida para o projétil
-    setTimeout(() => {
+  // Define o tempo de vida do projétil
+  setTimeout(() => {
+    removeProjectile();
+  }, 3000);
+
+  // Função para remover o projétil
+  function removeProjectile() {
+    if (world.bodies.includes(projectileBody)) {
+      world.removeBody(projectileBody);
+    }
+    scene.remove(projectileMesh);
+  }
+
+  // Detecta colisões entre o projétil e as Hello Kitties
+  projectileBody.addEventListener("collide", (event) => {
+    const collidedWith = event.body;
+    for (const kitty of kitties) {
+      if (collidedWith === kitty.body) {
+        console.warn("Atingiu uma Kitty!");
+        kitty.decreaseLife(1);
         removeProjectile();
-    }, 3000); // 3 segundos
-
-    // Função para remover o projétil
-    function removeProjectile() {
-        if (world.bodies.includes(projectileBody)) {
-            world.removeBody(projectileBody);
-        }
-        scene.remove(projectileMesh);
+        break;
+      }
     }
-
-    // Adiciona um event listener para colisões
-    projectileBody.addEventListener("collide", (event) => {
-        const collidedWith = event.body; // Corpo que foi atingido
-
-        // Verifica se colidiu com alguma Kitty
-        for (const kitty of kitties) {
-            if (collidedWith === kitty.body) {
-                console.warn("Atingiu uma Kitty!");
-                kitty.decreaseLife(1); // Diminui a vida da Kitty
-                removeProjectile(); // Remove o projétil ao colidir
-                break;
-            }
-        }
-    });
+  });
 }
 
-// Disparo ao clicar
+// Dispara ao clicar na tela
 window.addEventListener('click', () => {
-    shoot();
+  shoot();
 });
 
-// Função para verificar colisões entre dois objetos
-function checkCollision(body1, body2) {
-    return body1.aabb.overlaps(body2.aabb);
-}
-
-// Função para controlar o controle de PS4
+// Função para controlar o gamepad (exemplo com PS4)
 let yaw = 0;
 function handleGamepadInput() {
-    const gamepad = navigator.getGamepads()[0]; // Pega o primeiro controle conectado
+  const gamepad = navigator.getGamepads()[0];
+  if (gamepad) {
+    // Movimento com o analógico esquerdo
+    const leftStickX = gamepad.axes[0];
+    const leftStickY = gamepad.axes[1];
+    const direction = new THREE.Vector3();
+    direction.z = leftStickY;
+    direction.x = leftStickX;
+    camera.position.addScaledVector(direction, moveSpeed);
 
-    if (gamepad) {
-        // Analógico esquerdo para movimentação
-        const leftStickX = gamepad.axes[0]; // Eixo X do analógico esquerdo
-        const leftStickY = gamepad.axes[1]; // Eixo Y do analógico esquerdo
+    // Controle da câmera com o analógico direito
+    const rightStickX = gamepad.axes[2];
+    const rightStickY = gamepad.axes[3];
+    yaw += rightStickX * 0.1;
+    camera.rotation.set(rightStickY * 0.1, yaw, 0);
 
-        // Movimentação
-        const direction = new THREE.Vector3();
-        direction.z = leftStickY; // Frente/trás
-        direction.x = leftStickX; // Esquerda/direita
-        camera.position.addScaledVector(direction, moveSpeed);
-
-        // Analógico direito para controlar a câmera
-        const rightStickX = gamepad.axes[2]; // Eixo X do analógico direito
-        const rightStickY = gamepad.axes[3]; // Eixo Y do analógico direito
-
-        yaw += rightStickX * 0.1; // Rotação horizontal da câmera
-        camera.rotation.set(rightStickY * 0.1, yaw, 0); // Rotação vertical da câmera
-
-        // R2 para disparar
-        if (gamepad.buttons[7].pressed) { // R2 está no índice 7
-            shoot();
-        }
+    // Disparo com o botão R2 (índice 7)
+    if (gamepad.buttons[7].pressed) {
+      shoot();
     }
+  }
 }
 
 // Loop de animação
 function animate() {
-    requestAnimationFrame(animate);
-    world.step(1 / 60);
+  requestAnimationFrame(animate);
+  world.step(1 / 60);
+  stats.update();
 
-    stats.update();  // Atualiza o contador de FPS
+  // Movimentação com WASD
+  const direction = new THREE.Vector3();
+  camera.getWorldDirection(direction);
+  direction.y = 0;
+  direction.normalize();
+  if (keys.w) camera.position.addScaledVector(direction, moveSpeed);
+  if (keys.s) camera.position.addScaledVector(direction, -moveSpeed);
 
-    // Movimentação WASD
-    const direction = new THREE.Vector3();
-    camera.getWorldDirection(direction);
-    direction.y = 0; // Mantém o movimento no plano horizontal
-    direction.normalize();
+  const right = new THREE.Vector3();
+  right.crossVectors(camera.up, direction).normalize();
+  if (keys.a) camera.position.addScaledVector(right, moveSpeed);
+  if (keys.d) camera.position.addScaledVector(right, -moveSpeed);
 
-    if (keys.w) camera.position.addScaledVector(direction, moveSpeed);
-    if (keys.s) camera.position.addScaledVector(direction, -moveSpeed);
+  // Processa a entrada do gamepad
+  handleGamepadInput();
 
-    const right = new THREE.Vector3();
-    right.crossVectors(camera.up, direction).normalize();
-    if (keys.a) camera.position.addScaledVector(right, moveSpeed);
-    if (keys.d) camera.position.addScaledVector(right, -moveSpeed);
-
-    // Verifica se o controle está conectado e processa a entrada
-    handleGamepadInput();
-
-    // Atualizar todas as Hello Kitties
-    for (const kitty of kitties) {
-        // Atualiza o movimento da kitty
-        if (!kitty.isDead){
-            kitty.updateMovement(camera);
-        }
-
-        // DEBUG
-
-        // Atualiza o cubo de debug
-        kitty.updateDebugCube();
-
-        // Se a kitty estiver morta, limpa o cubo de debug1
-        if (kitty.isDead || kitty.life < 1){
-            if (kitty.debugCube) {
-                scene.remove(kitty.debugCube);  // Remove o cubo de debug da cena
-                kitty.debugCube = null;  // Limpa a referência
-            }
-        }
+  // Atualiza as Hello Kitties
+  for (const kitty of kitties) {
+    if (!kitty.isDead) {
+      kitty.updateMovement(camera);
     }
-    
-    renderer.render(scene, camera);
+    kitty.updateDebugCube();
 
-    // Sincronizar cena da arma com a câmera
-    weaponScene.position.copy(camera.position);
-    weaponScene.quaternion.copy(camera.quaternion);
+    // Remove o cubo de debug se a kitty estiver morta
+    if (kitty.isDead || kitty.life < 1) {
+      if (kitty.debugCube) {
+        scene.remove(kitty.debugCube);
+        kitty.debugCube = null;
+      }
+    }
+  }
 
-    // Renderiza a cena da arma por cima
-    renderer.autoClear = false;
-    renderer.clearDepth(); // Limpa o buffer de profundidade para evitar clipping
-    renderer.render(weaponScene, camera);
+  // Verifica se o round atual foi concluído
+  if (roundInProgress && kitties.every(kitty => kitty.life < 1)) {
+    roundInProgress = false;
+    console.log(`Round ${round} completo!`);
+    // Aguarda 3 segundos e inicia o próximo round
+    setTimeout(() => {
+      round++;
+      startRound();
+    }, 3000);
+  }
+
+  // Renderiza a cena principal
+  renderer.render(scene, camera);
+
+  // Sincroniza a cena da arma com a câmera e renderiza sobre a cena principal
+  weaponScene.position.copy(camera.position);
+  weaponScene.quaternion.copy(camera.quaternion);
+  renderer.autoClear = false;
+  renderer.clearDepth();
+  renderer.render(weaponScene, camera);
 }
 
 animate();
