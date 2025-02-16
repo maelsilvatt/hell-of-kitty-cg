@@ -154,7 +154,7 @@ export class HelloKitty {
     }     
 
     // DEBUG
-    initKittyDebugCube(){
+    initKittyDebugCube(scene){
         // Inicializando o cubo de debug na primeira vez que a Kitty é criada ou quando necessário
         if (!this.debugCube) {  // Verifica se o cubo de debug já foi criado
             this.debugCube = this.createDebugCube(this.body);  // Cria o cubo de debug
@@ -164,37 +164,22 @@ export class HelloKitty {
 
     updateDebugCube(){
         if (this.debugCube) {
-            const aabb = this.body.aabb;  // Obtém a AABB do corpo da kitty
-            const position = aabb.center;  // Posição do centro da AABB
-
-            // Atualiza a posição do cubo de debug para coincidir com o corpo da Kitty
-            this.debugCube.position.set(position.x, position.y, position.z);
+            // Posiciona o cubo exatamente onde está o body
+            this.debugCube.position.copy(this.body.position);
         }
     }
 
     createDebugCube() {
-        const aabb = this.body.aabb;
-        
-        // Calcular o tamanho da AABB
-        const size = new THREE.Vector3(
-            aabb.max.x - aabb.min.x,
-            aabb.max.y - aabb.min.y,
-            aabb.max.z - aabb.min.z
-        );
+        const size = this.size;
 
-        // Cria uma geometria de linha (com bordas) com as dimensões da AABB
+        // Cria uma geometria de linha (com bordas) com as dimensões do body
         const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
         const edges = new THREE.EdgesGeometry(geometry);  // Gera as arestas
         const material = new THREE.LineBasicMaterial({ color: 0xffffff });  // Linha branca
         const cube = new THREE.LineSegments(edges, material);
 
-        // Posiciona o cubo de acordo com o centro da AABB do corpo
-        const position = new THREE.Vector3(
-            (aabb.min.x + aabb.max.x) / 2,
-            (aabb.min.y + aabb.max.y) / 2,
-            (aabb.min.z + aabb.max.z) / 2
-        );
-        cube.position.set(position.x, position.y, position.z);
+        // Posiciona o cubo exatamente onde está o body
+        cube.position.copy(this.body.position);
 
         return cube;
     }
