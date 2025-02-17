@@ -2,6 +2,7 @@
 
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export function setupLighting(scene) {
     // Iluminação
@@ -21,51 +22,49 @@ export function setupPhysicsWorld() {
     return world;
 }
 
-export function setupMaterials() {
-    const material = new CANNON.Material();
+export function createFloor(world, scene) {
+    const island_loader = new GLTFLoader();
 
-    const wallColor = 0xff1493; // Rosa mais vibrante
-    const floorColor = 0xff6eb4; // Rosa ainda mais forte
+    island_loader.load('models/candy island/candy island.glb', (gltf) => {
+        const islandMesh = gltf.scene; // Variável local para evitar problemas
 
-    const wallMaterial = new THREE.MeshStandardMaterial({ color: wallColor });
-    const floorMaterial = new THREE.MeshStandardMaterial({ color: floorColor });
+        let island_size = 4;
+        islandMesh.scale.set(island_size, island_size, island_size); // Ajuste do tamanho da ilha
 
-    return { material, wallMaterial, floorMaterial };
-}
+        islandMesh.position.set(0, -22, 0);
 
-export function createFloor(world, scene, material, floorMaterial, room_size) {
-    // Chão
-    const floorBody = new CANNON.Body({ mass: 0, shape: new CANNON.Plane(), material });
+        scene.add(islandMesh);
+    });
+
+    // Criando o chão físico corretamente
+    const floorBody = new CANNON.Body({
+        mass: 0, // Chão estático
+        shape: new CANNON.Plane()
+    });
+
     floorBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
     world.addBody(floorBody);
-
-    const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(room_size * 2, room_size * 2), floorMaterial);
-    floorMesh.rotation.x = -Math.PI / 2;
-    scene.add(floorMesh);
 }
 
-export function createWall(world, scene, material, wallSize, wallMaterial, x, y, z, rotationY = 0) {
-    const wallBody = new CANNON.Body({ mass: 0, shape: new CANNON.Box(new CANNON.Vec3(wallSize.width / 2, wallSize.height / 2, wallSize.depth / 2)), material });
+export function createWall(world, wallSize, x, y, z, rotationY = 0) {
+    const wallBody = new CANNON.Body({ mass: 0, shape: new CANNON.Box(new CANNON.Vec3(wallSize.width / 2, wallSize.height / 2, wallSize.depth / 2))});
     wallBody.position.set(x, y, z);
+    wallBody.quaternion.setFromEuler(0, rotationY, 0);
     world.addBody(wallBody);
-
-    const wallMesh = new THREE.Mesh(new THREE.BoxGeometry(wallSize.width, wallSize.height, wallSize.depth), wallMaterial);
-    wallMesh.position.set(x, y, z);
-    wallMesh.rotation.y = rotationY;
-    scene.add(wallMesh);
 }
 
-export function createWalls(world, scene, material, wallSize, wallMaterial, room_size) {
+export function createWalls(world, wallSize, room_size) {
     // Criando as paredes
-    createWall(world, scene, material, wallSize, wallMaterial, 0, 5, -room_size); // Parede de trás
-    createWall(world, scene, material, wallSize, wallMaterial, 0, 5, room_size); // Parede da frente
-    createWall(world, scene, material, wallSize, wallMaterial, -room_size, 5, 0, Math.PI / 2); // Parede esquerda
-    createWall(world, scene, material, wallSize, wallMaterial, room_size, 5, 0, Math.PI / 2); // Parede direita
+    createWall(world, wallSize, 0, 5, -room_size); // Parede de trás
+    createWall(world, wallSize, 0, 5, room_size); // Parede da frente
+    createWall(world, wallSize, -room_size, 5, 0, Math.PI / 2); // Parede esquerda
+    createWall(world, wallSize, room_size, 5, 0, Math.PI / 2); // Parede direita
 }
 
-export function createWorld(scene, room_size = 130) {
+export function createWorld(scene, room_size = 100) {
     // Configura o fundo da cena
-    scene.background = new THREE.Color(0xff69b4); // Rosa vibrante
+    scene.background = new THREE.Color(0xdcabd5); // Rosa pastel
+    // scene.background = new THREE.Color(0x3ee4ed); // Azul celeste
     
     // Configura a iluminação
     setupLighting(scene);
@@ -73,15 +72,12 @@ export function createWorld(scene, room_size = 130) {
     // Configura o mundo físico
     const world = setupPhysicsWorld();
 
-    // Configura os materiais
-    const { material, wallMaterial, floorMaterial } = setupMaterials();
-
     // Definição do tamanho do ambiente
     const wallSize = { width: room_size * 2, height: 10, depth: 0.2 };
 
     // Cria o chão e as paredes
-    createFloor(world, scene, material, floorMaterial, room_size);
-    createWalls(world, scene, material, wallSize, wallMaterial, room_size);
+    createFloor(world, scene, room_size);
+    createWalls(world, scene, wallSize, room_size);
 
     return world; // Retorna o mundo para ser utilizado no main.js
 }

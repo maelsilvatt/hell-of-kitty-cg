@@ -44,7 +44,6 @@ let roundInProgress = false;
 
 // Função para iniciar um round
 function startRound() {
-  console.log(`Iniciando Round ${round}`);
   roundInProgress = true;
   // Reinicia os inimigos para o novo round
   kitties = [];
@@ -141,7 +140,7 @@ function shoot() {
   // Atualiza a posição do projétil e remove-o quando sair da área
   function updateProjectile() {
     projectileMesh.position.copy(projectileBody.position);
-    if (projectileBody.position.z < -50) {
+    if (projectileBody.position.z < -100) {
       removeProjectile();
     } else {
       requestAnimationFrame(updateProjectile);
@@ -167,7 +166,6 @@ function shoot() {
     const collidedWith = event.body;
     for (const kitty of kitties) {
       if (collidedWith === kitty.body) {
-        console.warn("Atingiu uma Kitty!");
         kitty.decreaseLife(1);
         removeProjectile();
         break;
