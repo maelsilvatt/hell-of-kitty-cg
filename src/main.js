@@ -5,7 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
 import { createWorld, setupLighting } from './level_design.js';
 import { HelloKitty } from './enemies.js';
-import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
+import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound, playKittyVoiceLine } from './audio.js';
 import { Player } from './player_stats.js'
 
 // Configuraçãso da cena
@@ -49,9 +49,10 @@ function startRound() {
   kitties = [];
 
   // Define a quantidade de inimigos com base no round (exemplo: round * 9)
-  const numKitties = round * 9;
+  const numKitties = round * 4;
   for (let i = 0; i < numKitties; i++) {
     addHelloKitty(scene, world, camera);
+
     // Inicializa o cubo de debug se necessário
     kitties[i].initKittyDebugCube(scene);
   }
@@ -235,6 +236,11 @@ function animate() {
         // Atualiza o movimento da kitty
         if (!kitty.isDead){
             kitty.updateMovement(camera);
+
+            // Toca um som aleatoriamente
+            if (Math.random() < 0.0005) {
+              playKittyVoiceLine();
+          }
         }
 
         // DEBUG

@@ -36,3 +36,35 @@ export function playGunshotSound() {
         console.error('Erro ao tentar reproduzir o som de tiro:', error);
     });
 }
+
+let isKittyVoicePlaying = false; // Variável para controlar se um som está em reprodução
+
+export function playKittyVoiceLine() {
+    if (isKittyVoicePlaying) return; // Impede que um novo som seja iniciado enquanto outro está tocando
+
+    // Lista de sons disponíveis
+    const kittyVoiceLines = [
+        'sound_effects/hello this is kitty (demon).wav',
+        'sound_effects/yeah (demon).wav'
+    ];
+
+    // Escolhe um dos sons aleatoriamente
+    const randomSound = kittyVoiceLines[Math.floor(Math.random() * kittyVoiceLines.length)];
+
+    // Cria uma nova instância do áudio com o som escolhido
+    const kittyVoiceLine = new Audio(randomSound);
+    kittyVoiceLine.volume = 0.4; 
+
+    isKittyVoicePlaying = true;
+
+    // Quando o som termina, libera para o próximo
+    kittyVoiceLine.onended = () => {
+        isKittyVoicePlaying = false;
+    };
+
+    // Toca o som e trata erros
+    kittyVoiceLine.play().catch(error => {
+        console.error('Erro ao tentar reproduzir o som da Kitty:', error);
+        isKittyVoicePlaying = false;
+    });
+}
