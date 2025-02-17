@@ -92,7 +92,7 @@ weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
     gunMesh.scale.set(gun_size, gun_size, gun_size); // Ajuste do tamanho da arma
     
     // Rotação para inclinar levemente para a esquerda
-    gunMesh.rotation.set(0, 2/3.3 * Math.PI, 0);  
+    gunMesh.rotation.set(0, (2/3.3) * Math.PI, 0);  
 
     // Posicionamento da arma no canto direito e um pouco abaixo
     gunMesh.position.set(2.3, -2.3, -5.5); 
