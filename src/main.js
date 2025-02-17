@@ -8,7 +8,7 @@ import { HelloKitty } from './enemies.js';
 import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
 import { Player } from './player_stats.js'
 
-// Configuração da cena
+// Configuraçãso da cena
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
