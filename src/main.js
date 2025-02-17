@@ -5,7 +5,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { keys, moveSpeed, setupControls } from './controls.js';
 import { createWorld, setupLighting } from './level_design.js';
 import { HelloKitty } from './enemies.js';
-import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound } from './audio.js';
+import { playBackgroundMusic, stopBackgroundMusic, playGunshotSound} from './audio.js';
+import { Player } from './player_stats.js'
 
 // Configuração da cena
 const scene = new THREE.Scene();
@@ -24,6 +25,9 @@ document.body.appendChild(stats.dom);
 
 // Criação do mundo físico
 const world = createWorld(scene);
+
+// Criação do jogador
+const player = new Player(scene, world, camera);
 
 // Array para armazenar as Hello Kitties
 let kitties = [];
@@ -83,15 +87,17 @@ setupLighting(weaponScene);
 
 const weapon_loader = new GLTFLoader();
 weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
-  gunMesh = gltf.scene;
-  let gun_size = 10;
-  gunMesh.scale.set(gun_size, gun_size, gun_size);
-  gunMesh.rotation.set(0, (2 / 3.3) * Math.PI, 0);
-  gunMesh.position.set(2.3, -2.3, -5.5);
-  weaponScene.add(gunMesh);
-  console.log('Arma carregada com sucesso!');
-}, (error) => {
-  console.error('Erro ao carregar o modelo da arma:', error);
+    gunMesh = gltf.scene;
+    let gun_size =  10;
+    gunMesh.scale.set(gun_size, gun_size, gun_size); // Ajuste do tamanho da arma
+    
+    // Rotação para inclinar levemente para a esquerda
+    gunMesh.rotation.set(0, 2/3.3 * Math.PI, 0);  
+
+    // Posicionamento da arma no canto direito e um pouco abaixo
+    gunMesh.position.set(2.3, -2.3, -5.5); 
+    
+    weaponScene.add(gunMesh); // Adiciona a arma na cena separada
 });
 
 // Função responsável pelos disparos
@@ -220,15 +226,24 @@ function animate() {
   if (keys.a) camera.position.addScaledVector(right, moveSpeed);
   if (keys.d) camera.position.addScaledVector(right, -moveSpeed);
 
-  // Processa a entrada do gamepad
-  handleGamepadInput();
+    // Verifica se o controle está conectado e processa a entrada
+    handleGamepadInput();
 
-  // Atualiza as Hello Kitties
-  for (const kitty of kitties) {
-    if (!kitty.isDead) {
-      kitty.updateMovement(camera);
-    }
-    kitty.updateDebugCube();
+    // Sincronizar jogador com a caixa de colisáo
+    // player.updateBody(camera);
+
+    // Atualizar todas as Hello Kitties
+    for (const kitty of kitties) {
+        // Atualiza o movimento da kitty
+        if (!kitty.isDead){
+            kitty.updateMovement(camera);
+        }
+
+        // DEBUG
+
+        // Atualiza o cubo de debug
+        kitty.updateDebugCube();
+        // player.updateDebugCube();
 
     // Remove o cubo de debug se a kitty estiver morta
     if (kitty.isDead || kitty.life < 1) {
