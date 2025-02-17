@@ -1,5 +1,6 @@
 import * as CANNON from 'cannon-es';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { playKittyVoiceLine } from './audio.js';;
 import * as THREE from 'three';
 
 export class HelloKitty {
@@ -198,5 +199,39 @@ export class HelloKitty {
         cube.position.copy(this.body.position);
 
         return cube;
+    }
+}
+
+// Função para adicionar uma Hello Kitty
+export function addKitties(kitties, scene, world, camera, size = 8, life = 5, speed = 15) {
+  const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
+  kitties.push(newKitty);
+}
+
+// Função para atualizar as kitties no jogo
+export function updateKitties(kitties, scene, camera){
+    for (const kitty of kitties) {
+        // Atualiza o movimento da kitty
+        if (!kitty.isDead){
+            kitty.updateMovement(camera);
+
+            // Toca um som aleatoriamente
+            if (Math.random() < 0.0005) {
+                playKittyVoiceLine();
+            }
+        }
+
+        // DEBUG
+
+        // Atualiza o cubo de debug
+        // kitty.updateDebugCube();
+
+        // // Remove o cubo de debug se a kitty estiver morta
+        // if (kitty.isDead || kitty.life < 1) {
+        //     if (kitty.debugCube) {
+        //     scene.remove(kitty.debugCube);
+        //     kitty.debugCube = null;
+        //     }
+        // };
     }
 }
