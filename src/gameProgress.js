@@ -1,6 +1,6 @@
 // gameProgress.js
 
-import { addKitties } from './enemies.js';
+import { addKitties } from './kitties.js';
 import { playBackgroundMusic, playSansDialogueSound } from './audio.js';
 
 let isFinalBossIntroOn = false;
