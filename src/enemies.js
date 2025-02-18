@@ -203,7 +203,7 @@ export class HelloKitty {
 }
 
 // Função para adicionar uma Hello Kitty
-export function addKitties(kitties, scene, world, camera, size = 8, life = 5, speed = 15) {
+export function addKitties(kitties, scene, world, camera, size = 8, life = 5, speed = 8) {
   const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
   kitties.push(newKitty);
 }
@@ -216,7 +216,7 @@ export function updateKitties(kitties, scene, camera){
             kitty.updateMovement(camera);
 
             // Toca um som aleatoriamente
-            if (Math.random() < 0.0005) {
+            if (Math.random() < 0.001) {
                 playKittyVoiceLine();
             }
         }

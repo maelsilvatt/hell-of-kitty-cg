@@ -13,7 +13,7 @@ export function startRound(kitties, scene, world, camera, round) {
     addKitties(kitties, scene, world, camera);
 
     // Inicializa o cubo de debug se necessário
-    kitties[i].initKittyDebugCube(scene);
+    // kitties[i].initKittyDebugCube(scene);
   }
 
   return kitties;
@@ -23,13 +23,13 @@ export function startRound(kitties, scene, world, camera, round) {
 export function checkRound(kitties, scene, world, camera, round, roundInProgress) {
   if (roundInProgress && kitties.every(kitty => kitty.life < 1)) {
     roundInProgress = false;
+    round++;
 
     // Aguarda 3 segundos e inicia o próximo round
     setTimeout(() => {
-      round++;
       kitties = startRound(kitties, scene, world, camera, round);
       roundInProgress = true;
-    }, 3000);
+    }, 5000);
   }
 
   return [round, roundInProgress, kitties];

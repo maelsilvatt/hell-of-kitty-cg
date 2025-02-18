@@ -48,9 +48,9 @@ window.addEventListener('click', () => {
 
 // Inicia o jogo
 let round = 1;
-let roundInProgress = false;
+let roundInProgress = true;
 let kitties = [];
-kitties = startRound(kitties, scene, world, camera, round, roundInProgress);
+kitties = startRound(kitties, scene, world, camera, round);
 
 // Loop de animação
 function animate() {
@@ -68,10 +68,20 @@ function animate() {
   player.updateBody(camera);
 
   // Atualiza todas as Kitties
+  console.warn(kitties.length);
   updateKitties(kitties, scene, camera);
 
   // Verifica se o round atual foi concluído
-  [round, roundInProgress, kitties] = checkRound(kitties, scene, world, camera, round, roundInProgress);
+  if (roundInProgress && kitties.every(kitty => kitty.life < 1)) {
+    roundInProgress = false;
+    round++;
+
+    // Aguarda 3 segundos e inicia o próximo round
+    setTimeout(() => {
+      kitties = startRound(kitties, scene, world, camera, round);
+      roundInProgress = true;
+    }, 5000);
+  }
 
   // Renderiza a cena principal
   renderer.render(scene, camera);
