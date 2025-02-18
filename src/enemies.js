@@ -4,7 +4,7 @@ import { playKittyVoiceLine } from './audio.js';;
 import * as THREE from 'three';
 
 export class HelloKitty {
-    constructor(scene, world, player, size = 5, life = 5, speed = 15) {
+    constructor(scene, world, player, size = 5, life = 5, speed = 7) {
         this.scene = scene;
         this.world = world;
         this.player = player;
@@ -56,8 +56,8 @@ export class HelloKitty {
     }    
 
     createPhysicsBody() {
-        const minDistance = 10;
-        const maxDistance = 50;
+        const minDistance = 40;
+        const maxDistance = 60;
         const angle = Math.random() * Math.PI * 2;
         const distance = Math.random() * (maxDistance - minDistance) + minDistance;
         const offsetX = Math.cos(angle) * distance;

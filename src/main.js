@@ -6,7 +6,7 @@ import { updateKitties } from './enemies.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
 import { createWeapon, shoot } from './weapons.js';
-import { startRound, checkRound } from './gameProgress.js';
+import { startRound, finalBoss } from './gameProgress.js';
 
 // Configuraçãso da cena
 const scene = new THREE.Scene();
@@ -68,7 +68,6 @@ function animate() {
   player.updateBody(camera);
 
   // Atualiza todas as Kitties
-  console.warn(kitties.length);
   updateKitties(kitties, scene, camera);
 
   // Verifica se o round atual foi concluído

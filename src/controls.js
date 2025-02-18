@@ -4,7 +4,7 @@ import { shoot } from './weapons.js';
 import * as THREE from 'three';
 
 export const keys = { w: false, a: false, s: false, d: false };
-export let moveSpeed = 0.3;
+export let moveSpeed = 0.35;
 export let mouseSensitivity = 0.002;
 export let yaw = 0;
 
