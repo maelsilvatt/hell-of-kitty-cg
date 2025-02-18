@@ -15,7 +15,7 @@ export function startRound(kitties, scene, world, camera, round) {
           finalBoss();
           setTimeout(() => {
               isFinalBossIntroOn = false;              
-            }, 30000);
+            }, 28000);
           
           return kitties;
         }
@@ -61,3 +61,5 @@ function finalBoss(){
   // Exibe os diálogos um por vez
   showNextDialogue(dialogues, 0);
 }
+
+export { isFinalBossIntroOn }

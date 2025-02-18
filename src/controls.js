@@ -1,5 +1,6 @@
 // controls.js
 
+import { isFinalBossIntroOn } from './gameProgress.js';
 import { shoot } from './weapons.js';
 import * as THREE from 'three';
 
@@ -33,40 +34,45 @@ export function setupControls(camera) {
 }
 
 export function handleKeyboardInput(camera){
-    const direction = new THREE.Vector3();
-    camera.getWorldDirection(direction);
-    direction.y = 0;
-    direction.normalize();
-    if (keys.w) camera.position.addScaledVector(direction, moveSpeed);
-    if (keys.s) camera.position.addScaledVector(direction, -moveSpeed);
+    if ( !isFinalBossIntroOn){   
+        const direction = new THREE.Vector3();
+        camera.getWorldDirection(direction);
+        direction.y = 0;
+        direction.normalize();
+        if (keys.w) camera.position.addScaledVector(direction, moveSpeed);
+        if (keys.s) camera.position.addScaledVector(direction, -moveSpeed);
 
-    const right = new THREE.Vector3();
-    right.crossVectors(camera.up, direction).normalize();
-    if (keys.a) camera.position.addScaledVector(right, moveSpeed);
-    if (keys.d) camera.position.addScaledVector(right, -moveSpeed);    
+        const right = new THREE.Vector3();
+        right.crossVectors(camera.up, direction).normalize();
+        if (keys.a) camera.position.addScaledVector(right, moveSpeed);
+        if (keys.d) camera.position.addScaledVector(right, -moveSpeed);   
+    }
 }
 
 // Função para controlar o gamepad (exemplo com PS4)
 export function handleGamepadInput(kitties, world, scene, camera) {
-  const gamepad = navigator.getGamepads()[0];
-  if (gamepad) {
-    // Movimento com o analógico esquerdo
-    const leftStickX = gamepad.axes[0];
-    const leftStickY = gamepad.axes[1];
-    const direction = new THREE.Vector3();
-    direction.z = leftStickY;
-    direction.x = leftStickX;
-    camera.position.addScaledVector(direction, moveSpeed);
+    const gamepad = navigator.getGamepads()[0]; // Pega o primeiro controle na lista de gamepads
 
-    // Controle da câmera com o analógico direito
-    const rightStickX = gamepad.axes[2];
-    const rightStickY = gamepad.axes[3];
-    yaw += rightStickX * 0.1;
-    camera.rotation.set(rightStickY * 0.1, yaw, 0);
+    // Verifica se existe controle e se não está em cutscene
+    if (gamepad && !isFinalBossIntroOn) {
 
-    // Disparo com o botão R2 (índice 7)
-    if (gamepad.buttons[7].pressed) {
-      shoot(kitties, world, scene, camera);
-    }
-  }
+        // Movimento com o analógico esquerdo
+        const leftStickX = gamepad.axes[0];
+        const leftStickY = gamepad.axes[1];
+        const direction = new THREE.Vector3();
+        direction.z = leftStickY;
+        direction.x = leftStickX;
+        camera.position.addScaledVector(direction, moveSpeed);
+
+        // Controle da câmera com o analógico direito
+        const rightStickX = gamepad.axes[2];
+        const rightStickY = gamepad.axes[3];
+        yaw += rightStickX * 0.1;
+        camera.rotation.set(rightStickY * 0.1, yaw, 0);
+
+        // Disparo com o botão R2 (índice 7)
+        if (gamepad.buttons[7].pressed) {
+            shoot(kitties, world, scene, camera);
+        }
+    } 
 }

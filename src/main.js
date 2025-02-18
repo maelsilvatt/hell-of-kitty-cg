@@ -6,7 +6,7 @@ import { updateKitties } from './kitties.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
 import { createWeapon, shoot } from './weapons.js';
-import { startRound } from './gameProgress.js';
+import { isFinalBossIntroOn, startRound } from './gameProgress.js';
 
 // Configuraçãso da cena
 const scene = new THREE.Scene();
@@ -38,7 +38,10 @@ let musicPlayed = true;
 
 // Dispara ao clicar na tela e toca a música de fundo (uma vez)
 window.addEventListener('click', () => {
-  shoot(kitties, world, scene, camera);
+  // Bloqueira os tiros se estiver em cutscene
+  if ( !isFinalBossIntroOn ){
+    shoot(kitties, world, scene, camera);
+  }
 
   if (!musicPlayed) {
     playBackgroundMusic();
@@ -70,9 +73,9 @@ function animate() {
   // Atualiza todas as Kitties
   updateKitties(kitties, scene, camera);
 
-  // Softlock no round 4
-  if (round > 4){
-    round = 4;
+  // Softlock no round 5
+  if (round > 5){
+    round = 5;
   }
 
   // Verifica se o round atual foi concluído
@@ -84,7 +87,7 @@ function animate() {
     setTimeout(() => {
       kitties = startRound(kitties, scene, world, camera, round);
       roundInProgress = true;
-    }, 3000);
+    }, 2000);
   }
 
   // Renderiza a cena principal
