@@ -6,7 +6,7 @@ import { updateKitties } from './enemies.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
 import { createWeapon, shoot } from './weapons.js';
-import { startRound, finalBoss } from './gameProgress.js';
+import { startRound } from './gameProgress.js';
 
 // Configuraçãso da cena
 const scene = new THREE.Scene();
@@ -79,7 +79,7 @@ function animate() {
     setTimeout(() => {
       kitties = startRound(kitties, scene, world, camera, round);
       roundInProgress = true;
-    }, 5000);
+    }, 3000);
   }
 
   // Renderiza a cena principal

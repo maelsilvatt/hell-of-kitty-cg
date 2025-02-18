@@ -3,25 +3,43 @@
 import { addKitties } from './enemies.js';
 import { playBackgroundMusic, playSansDialogueSound } from './audio.js';
 
+let isFinalBossIntroOn = false;
+
 // Função para iniciar um round
 export function startRound(kitties, scene, world, camera, round) {
-  // Reinicia os inimigos para o novo round
-  kitties = [];
+  if (!isFinalBossIntroOn){
+        // Reinicia os inimigos para o novo round
+        kitties = [];
 
-  // Define a quantidade de inimigos com base no round (exemplo: round * 4)
-  const numKitties = round * 4;
-  for (let i = 0; i < numKitties; i++) {
-    addKitties(kitties, scene, world, camera);
-
-    // Inicializa o cubo de debug se necessário
-    // kitties[i].initKittyDebugCube(scene);
+        // Se chegou ao round 4, inicia a batalha final
+        if (round == 2){
+          isFinalBossIntroOn = true;
+          finalBoss();
+          setTimeout(() => {
+              isFinalBossIntroOn = false;
+              startRound(kitties, scene, world, camera, round=4);
+            }, 33000);
+          
+          return kitties;
+        }
+    
+        // Define a quantidade de inimigos com base no round (exemplo: round * 4)
+        const numKitties = round * 4;
+        for (let i = 0; i < numKitties; i++) {
+          addKitties(kitties, scene, world, camera);
+    
+          // Inicializa o cubo de debug se necessário
+          // kitties[i].initKittyDebugCube(scene);
+        }
+    
+        return kitties;
   }
 
   return kitties;
 }
 
 // Função que exibe a cutscene da boss fight
-export function finalBoss(){
+function finalBoss(){
   // Toca o som do diálogo
   playSansDialogueSound(25);
 
