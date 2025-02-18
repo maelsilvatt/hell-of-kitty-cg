@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Stats from 'stats.js';
 import { setupControls, handleGamepadInput, handleKeyboardInput } from './controls.js';
 import { createWorld } from './level_design.js';
-import { updateKitties } from './enemies.js';
+import { updateKitties } from './kitties.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
 import { createWeapon, shoot } from './weapons.js';
@@ -69,6 +69,11 @@ function animate() {
 
   // Atualiza todas as Kitties
   updateKitties(kitties, scene, camera);
+
+  // Softlock no round 4
+  if (round > 4){
+    round = 4;
+  }
 
   // Verifica se o round atual foi concluído
   if (roundInProgress && kitties.every(kitty => kitty.life < 1)) {
