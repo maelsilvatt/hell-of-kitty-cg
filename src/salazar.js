@@ -1,7 +1,6 @@
 import * as CANNON from 'cannon-es';
 import { playSalazarVoiceLine } from './audio.js';
 import * as THREE from 'three';
-// import { createVideoTexture } from './utils.js';
 
 export class Salazar {
     constructor(scene, world, camera, size = 50, life = 200, speed = 7) {
@@ -42,16 +41,18 @@ export class Salazar {
         this.salazar = new THREE.Mesh(imageGeometry, imageMaterial);
 
         // // Criar mão direita
+        const hands_size = this.size / 2.2;
+
         const handRightMaterial = new THREE.MeshBasicMaterial({
             map: createVideoTexture('images/Final boss/floating_hand.webm'), // Caminho do WebM com transparência
             side: THREE.DoubleSide,
             transparent: true
         });
-        this.handRight = new THREE.Mesh(new THREE.PlaneGeometry(this.size / 3, this.size / 3), handRightMaterial);
+        this.handRight = new THREE.Mesh(new THREE.PlaneGeometry(hands_size, hands_size), handRightMaterial);
 
         // Criar mão esquerda (invertida)
         const handLeftMaterial = handRightMaterial.clone();
-        this.handLeft = new THREE.Mesh(new THREE.PlaneGeometry(this.size / 3, this.size / 3), handLeftMaterial);
+        this.handLeft = new THREE.Mesh(new THREE.PlaneGeometry(hands_size, hands_size), handLeftMaterial);
         this.handLeft.scale.x = -1; // Inverte horizontalmente
 
         const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 2);
@@ -182,26 +183,26 @@ export class Salazar {
             this.body.position.z
         );
 
-        // Ajusta as posições das mãos para ficarem ao lado da imagem do Salazar
-        this.handLeft.position.set(
-            this.salazar.position.x + this.size / 1.5, // Ajuste a posição lateral para a mão esquerda
-            this.salazar.position.y,
-            this.salazar.position.z
-        );
-
-        this.handRight.position.set(
-            this.salazar.position.x - this.size / 1.5, // Ajuste a posição lateral para a mão direita
-            this.salazar.position.y,
-            this.salazar.position.z
-        );
-
-    
         // Faz o Salazar sempre olhar para o jogador
         this.salazar.lookAt(this.camera.position);
 
-        // Sincroniza a rotação das mãos com a rotação do Salazar
+        // Criamos deslocamentos relativos em um espaço local (esquerda e direita)
+        const offsetLeft = new THREE.Vector3(this.size / 1.5, 0, 0);  // Mão esquerda ao lado
+        const offsetRight = new THREE.Vector3(-this.size / 1.5, 0, 0);  // Mão direita ao lado
+
+        // Rotacionamos esses vetores com base na rotação do Salazar
+        offsetLeft.applyQuaternion(this.salazar.quaternion);
+        offsetRight.applyQuaternion(this.salazar.quaternion);
+
+        // Aplicamos a posição do Salazar para mover as mãos corretamente
+        this.handLeft.position.copy(this.salazar.position).add(offsetLeft);
+        this.handRight.position.copy(this.salazar.position).add(offsetRight);
+
+        // Mantemos a rotação das mãos sincronizada com a do Salazar
         this.handRight.rotation.copy(this.salazar.rotation);
         this.handLeft.rotation.copy(this.salazar.rotation);
+
+        // Faz as mãos olharem para o jogador
         this.handRight.lookAt(this.camera.position);
         this.handLeft.lookAt(this.camera.position);
 
@@ -286,3 +287,4 @@ const createVideoTexture = (url) => {
 
     return texture;
 };
+

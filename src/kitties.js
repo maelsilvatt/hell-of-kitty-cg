@@ -29,25 +29,24 @@ export class HelloKitty {
         const loader = new GLTFLoader();
         loader.load('models/hello kitty/scene.gltf', (gltf) => {
             this.helloKitty = gltf.scene;
-            this.helloKitty.scale.set(this.size, this.size, this.size);            
-    
+            this.helloKitty.scale.set(this.size, this.size, this.size); 
+            
             // Criar barra de vida
             const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 0.2);
             this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0x00ff00, 
-                side: THREE.DoubleSide // Garantir que é visível dos dois lados
+                side: THREE.DoubleSide
             });
-    
+        
             this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial); 
             const lifePercentage = this.life / 5;
             this.lifeBar.scale.x = lifePercentage;       
-    
+
             // Criar um grupo para o inimigo e a barra de vida
             const enemyGroup = new THREE.Group();
             enemyGroup.add(this.helloKitty);
             enemyGroup.add(this.lifeBar);
-            this.scene.add(enemyGroup);
-    
+            this.scene.add(enemyGroup)
         }, undefined, (error) => {
             console.error('Erro ao carregar modelo:', error);
         });
