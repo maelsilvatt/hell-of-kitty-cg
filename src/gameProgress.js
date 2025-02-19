@@ -3,19 +3,20 @@
 import { addKitties } from './kitties.js';
 import { playBackgroundMusic, playSansDialogueSound } from './audio.js';
 import { blackoutScreen, showNextDialogue } from './utils.js';
+import { setupAmbientInfernal } from './level_design.js';
 
 let isFinalBossIntroOn = false;
 
 // Função para iniciar um round
-export function startRound(kitties, scene, world, camera, round) {
+export function startRound(kitties, scenes, world, camera, round) {
   if (!isFinalBossIntroOn){
         // Se chegou ao round 4, inicia a batalha final
         if (round == 2){
           isFinalBossIntroOn = true;
-          playfinalBossCutscene();
+          playfinalBossCutscene(scenes);
           setTimeout(() => {
               isFinalBossIntroOn = false;              
-            }, 28000);
+            }, 24000);
           
           return kitties;
         }
@@ -26,7 +27,7 @@ export function startRound(kitties, scene, world, camera, round) {
         // Define a quantidade de inimigos com base no round (exemplo: round * 4)
         const numKitties = round * 4;
         for (let i = 0; i < numKitties; i++) {
-          addKitties(kitties, scene, world, camera);
+          addKitties(kitties, scenes[0], world, camera);
     
           // Inicializa o cubo de debug se necessário
           // kitties[i].initKittyDebugCube(scene);
@@ -39,9 +40,9 @@ export function startRound(kitties, scene, world, camera, round) {
 }
 
 // Função que exibe a cutscene da boss fight
-function playfinalBossCutscene(){
+function playfinalBossCutscene(scenes){
   // Toca o som do diálogo
-  playSansDialogueSound(25);
+  playSansDialogueSound(24);
 
   // Inicia a música da boss fight
   playBackgroundMusic('sound_effects/Undertale - Megalovania.mp3', 0.7);
@@ -60,6 +61,10 @@ function playfinalBossCutscene(){
 
   // Exibe os diálogos um por vez
   showNextDialogue(dialogues, 0);
+
+  // // Muda o tom do céu para vermelho
+  setupAmbientInfernal(scenes[0]);
+  setupAmbientInfernal(scenes[1], true);
 }
 
 export { isFinalBossIntroOn }

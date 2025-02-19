@@ -34,6 +34,9 @@ const player = new Player(scene, world, camera);
 const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
 createWeapon(weaponScene);
 
+// Cria um array com as cenas
+const scenes = [scene, weaponScene];
+
 // Variável para garantir que a música toque apenas uma vez (configuração de debug)
 let musicPlayed = true; 
 
@@ -56,7 +59,7 @@ window.addEventListener('click', () => {
 let round = 1;
 let roundInProgress = true;
 let kitties = [];
-kitties = startRound(kitties, scene, world, camera, round);
+kitties = startRound(kitties, scenes, world, camera, round);
 
 // DEBUG
 salazar = new Salazar(scene, world, camera);
@@ -94,7 +97,7 @@ function animate() {
 
     // Aguarda 3 segundos e inicia o próximo round
     setTimeout(() => {
-      kitties = startRound(kitties, scene, world, camera, round);
+      kitties = startRound(kitties, scenes, world, camera, round);
       roundInProgress = true;
     }, 2000);
   }
