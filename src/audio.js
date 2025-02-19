@@ -23,9 +23,6 @@ export function stopBackgroundMusic() {
     }
 }
 
-// Variáveis para armazenar o efeito de som de tiro
-let gunshotSound;
-
 // Função para carregar e tocar o efeito de tiro
 export function playGunshotSound() {
     const gunshotSound = new Audio('sound_effects/gun_shot.mp3');  // Cria uma nova instância do áudio a cada chamada
@@ -66,6 +63,38 @@ export function playKittyVoiceLine() {
     kittyVoiceLine.play().catch(error => {
         console.error('Erro ao tentar reproduzir o som da Kitty:', error);
         isKittyVoicePlaying = false;
+    });
+}
+
+
+
+export function playSalazarVoiceLine(){
+    
+}
+
+let isVoiceLinePlaying = false; // Variável para controlar se um som está em reprodução
+
+export function playVoiceLine(voiceLines) {
+    if (isVoiceLinePlaying) return; // Impede que um novo som seja iniciado enquanto outro está tocando
+
+    // Escolhe um dos sons aleatoriamente
+    const randomSound = voiceLines[Math.floor(Math.random() * kittyVoiceLines.length)];
+
+    // Cria uma nova instância do áudio com o som escolhido
+    const voiceLine = new Audio(randomSound);
+    voiceLine.volume = 0.4; 
+
+    isVoiceLinePlaying = true;
+
+    // Quando o som termina, libera para o próximo
+    voiceLine.onended = () => {
+        isVoiceLinePlaying = false;
+    };
+
+    // Toca o som e trata erros
+    voiceLine.play().catch(error => {
+        console.error('Erro ao tentar reproduzir o som da Kitty:', error);
+        isVoiceLinePlaying = false;
     });
 }
 

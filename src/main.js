@@ -7,6 +7,7 @@ import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
 import { createWeapon, shoot } from './weapons.js';
 import { isFinalBossIntroOn, startRound } from './gameProgress.js';
+import { Salazar, updateSalazar } from './salazar.js';
 
 // Configuraçãso da cena
 const scene = new THREE.Scene();
@@ -55,6 +56,9 @@ let roundInProgress = true;
 let kitties = [];
 kitties = startRound(kitties, scene, world, camera, round);
 
+// DEBUG
+const salazar = new Salazar(scene, world, camera);
+
 // Loop de animação
 function animate() {
   requestAnimationFrame(animate);
@@ -72,6 +76,9 @@ function animate() {
 
   // Atualiza todas as Kitties
   updateKitties(kitties, scene, camera);
+
+  // Atualiza o Salazar
+  updateSalazar(salazar, scene, camera);
 
   // Softlock no round 5
   if (round > 5){

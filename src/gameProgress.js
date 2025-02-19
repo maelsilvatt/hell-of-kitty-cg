@@ -12,7 +12,7 @@ export function startRound(kitties, scene, world, camera, round) {
         // Se chegou ao round 4, inicia a batalha final
         if (round == 2){
           isFinalBossIntroOn = true;
-          finalBoss();
+          playfinalBossCutscene();
           setTimeout(() => {
               isFinalBossIntroOn = false;              
             }, 28000);
@@ -39,7 +39,7 @@ export function startRound(kitties, scene, world, camera, round) {
 }
 
 // Função que exibe a cutscene da boss fight
-function finalBoss(){
+function playfinalBossCutscene(){
   // Toca o som do diálogo
   playSansDialogueSound(25);
 
