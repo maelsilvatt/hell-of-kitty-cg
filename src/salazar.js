@@ -1,6 +1,7 @@
 import * as CANNON from 'cannon-es';
 import { playSalazarVoiceLine } from './audio.js';
 import * as THREE from 'three';
+// import { createVideoTexture } from './utils.js';
 
 export class Salazar {
     constructor(scene, world, camera, size = 50, life = 200, speed = 7) {
@@ -12,6 +13,8 @@ export class Salazar {
         this.speed = speed;
         this.isDead = false;
         this.salazar = null;
+        this.handRight = null;
+        this.handLeft = null;
         this.lifeBar = null;
         this.body = null;
 
@@ -38,10 +41,23 @@ export class Salazar {
 
         this.salazar = new THREE.Mesh(imageGeometry, imageMaterial);
 
+        // // Criar mão direita
+        const handRightMaterial = new THREE.MeshBasicMaterial({
+            map: createVideoTexture('images/Final boss/floating_hand.webm'), // Caminho do WebM com transparência
+            side: THREE.DoubleSide,
+            transparent: true
+        });
+        this.handRight = new THREE.Mesh(new THREE.PlaneGeometry(this.size / 3, this.size / 3), handRightMaterial);
+
+        // Criar mão esquerda (invertida)
+        const handLeftMaterial = handRightMaterial.clone();
+        this.handLeft = new THREE.Mesh(new THREE.PlaneGeometry(this.size / 3, this.size / 3), handLeftMaterial);
+        this.handLeft.scale.x = -1; // Inverte horizontalmente
+
         const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 2);
         this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
             color: 0x00ff00, 
-            side: THREE.DoubleSide // Garantir que é visível dos dois lados
+            side: THREE.DoubleSide
         });
 
         this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial);    
@@ -54,6 +70,8 @@ export class Salazar {
         // Criar um grupo para o inimigo e a barra de vida
         const enemyGroup = new THREE.Group();
         enemyGroup.add(this.salazar);
+        enemyGroup.add(this.handRight);
+        enemyGroup.add(this.handLeft);
         enemyGroup.add(this.lifeBar);
         this.scene.add(enemyGroup);
         }, undefined, (error) => {
@@ -157,15 +175,35 @@ export class Salazar {
         // Aplica a força na física
         this.body.applyForce(force, this.body.position);
     
-        // Sincroniza a posição da boneca com o corpo físico
+        // Sincroniza a posição do Salazar com o corpo físico
         this.salazar.position.set(
             this.body.position.x,
             this.body.position.y + this.size / 5,
             this.body.position.z
         );
+
+        // Ajusta as posições das mãos para ficarem ao lado da imagem do Salazar
+        this.handLeft.position.set(
+            this.salazar.position.x + this.size / 1.5, // Ajuste a posição lateral para a mão esquerda
+            this.salazar.position.y,
+            this.salazar.position.z
+        );
+
+        this.handRight.position.set(
+            this.salazar.position.x - this.size / 1.5, // Ajuste a posição lateral para a mão direita
+            this.salazar.position.y,
+            this.salazar.position.z
+        );
+
     
         // Faz o Salazar sempre olhar para o jogador
         this.salazar.lookAt(this.camera.position);
+
+        // Sincroniza a rotação das mãos com a rotação do Salazar
+        this.handRight.rotation.copy(this.salazar.rotation);
+        this.handLeft.rotation.copy(this.salazar.rotation);
+        this.handRight.lookAt(this.camera.position);
+        this.handLeft.lookAt(this.camera.position);
 
         // Ajustar a barra de vida para olhar para o jogador
         this.lifeBar.lookAt(this.camera.position);
@@ -229,3 +267,22 @@ export function updateSalazar(salazar, scene, camera){
         };
     }
 }
+
+// Cria uma textura com base em um video webM
+const createVideoTexture = (url) => {
+    const video = document.createElement('video');
+    video.src = url;
+    video.loop = true;
+    video.muted = true;
+    video.autoplay = true;
+    video.setAttribute('playsinline', ''); // Necessário para funcionar no mobile
+    video.play();
+
+    const texture = new THREE.VideoTexture(video);
+    texture.format = THREE.RGBAFormat; // Mantém transparência
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+
+    return texture;
+};

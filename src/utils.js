@@ -70,3 +70,22 @@ export function blackoutScreen(){
     // Adiciona a tela preta ao corpo do documento
     document.body.appendChild(blackout);
 }
+
+// Função para criar uma textura com base em um vídeo WebM
+export function createVideoTexture(url) {
+    const video = document.createElement('video');
+    video.src = url;
+    video.loop = true;
+    video.muted = true;
+    video.autoplay = true;
+    video.setAttribute('playsinline', ''); // Necessário para funcionar no mobile
+    video.play();
+
+    const texture = new THREE.VideoTexture(video);
+    texture.format = THREE.RGBAFormat; // Mantém transparência
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+
+    return texture;
+}
