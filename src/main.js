@@ -38,10 +38,12 @@ createWeapon(weaponScene);
 let musicPlayed = true; 
 
 // Dispara ao clicar na tela e toca a música de fundo (uma vez)
+let salazar;
+
 window.addEventListener('click', () => {
   // Bloqueira os tiros se estiver em cutscene
   if ( !isFinalBossIntroOn ){
-    shoot(kitties, world, scene, camera);
+    shoot(kitties, world, scene, camera, salazar);
   }
 
   if (!musicPlayed) {
@@ -57,7 +59,7 @@ let kitties = [];
 kitties = startRound(kitties, scene, world, camera, round);
 
 // DEBUG
-const salazar = new Salazar(scene, world, camera);
+salazar = new Salazar(scene, world, camera);
 
 // Loop de animação
 function animate() {

@@ -50,6 +50,8 @@ export function handleKeyboardInput(camera){
 }
 
 // Função para controlar o gamepad (exemplo com PS4)
+let salazar;
+
 export function handleGamepadInput(kitties, world, scene, camera) {
     const gamepad = navigator.getGamepads()[0]; // Pega o primeiro controle na lista de gamepads
 
@@ -72,7 +74,7 @@ export function handleGamepadInput(kitties, world, scene, camera) {
 
         // Disparo com o botão R2 (índice 7)
         if (gamepad.buttons[7].pressed) {
-            shoot(kitties, world, scene, camera);
+            shoot(kitties, world, scene, camera, salazar);
         }
     } 
 }

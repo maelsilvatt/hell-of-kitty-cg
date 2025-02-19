@@ -28,7 +28,7 @@ export function createWeapon(weaponScene){
     });
 }
 
-export function shoot(kitties, world, scene, camera){
+export function shoot(kitties, world, scene, camera, salazar = null){
     playGunshotSound();
 
     // Cria o projétil
@@ -89,15 +89,21 @@ export function shoot(kitties, world, scene, camera){
         scene.remove(projectileMesh);
     }
 
-    // Detecta colisões entre o projétil e as Hello Kitties
+    // Detecta colisões entre o projétil e os inimigos
     projectileBody.addEventListener("collide", (event) => {
         const collidedWith = event.body;
-        for (const kitty of kitties) {
-        if (collidedWith === kitty.body) {
-            kitty.decreaseLife(1);
-            removeProjectile();
-            break;
+
+        if (salazar && collidedWith){
+            salazar.decreaseLife(1);
+            removeProjectile();            
         }
+
+        for (const kitty of kitties) {
+            if (collidedWith === kitty.body) {
+                kitty.decreaseLife(1);
+                removeProjectile();
+                break;
+            }
         }
     });
 }

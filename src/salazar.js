@@ -3,7 +3,7 @@ import { playSalazarVoiceLine } from './audio.js';
 import * as THREE from 'three';
 
 export class Salazar {
-    constructor(scene, world, camera, size = 25, life = 60, speed = 5) {
+    constructor(scene, world, camera, size = 50, life = 60, speed = 7) {
         this.scene = scene;
         this.world = world;
         this.camera = camera;
@@ -120,13 +120,14 @@ export class Salazar {
         }
     }
 
+    // Atualiza a movimentação do Salazar
     updateMovement(player) {
         if (!player || !this.body || !this.salazar || this.isDead) return;
     
         const playerPos = new CANNON.Vec3(player.position.x, player.position.y, player.position.z);
         const enemyPos = this.body.position;
         const distanceToPlayer = playerPos.distanceTo(enemyPos);
-        const minDistance = 15;
+        const minDistance = 2;
     
         let direction = new CANNON.Vec3();
     
@@ -163,7 +164,7 @@ export class Salazar {
         // Sincroniza a posição da boneca com o corpo físico
         this.salazar.position.set(
             this.body.position.x,
-            this.body.position.y - 0,
+            this.body.position.y + this.size / 5,
             this.body.position.z
         );
     
