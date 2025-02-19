@@ -8,6 +8,7 @@ export const keys = { w: false, a: false, s: false, d: false };
 export let moveSpeed = 0.35;
 export let mouseSensitivity = 0.002;
 export let yaw = 0;
+let musicPlayed = false;
 
 export function setupControls(camera) {
     window.addEventListener('keydown', (event) => {
@@ -17,9 +18,6 @@ export function setupControls(camera) {
     window.addEventListener('keyup', (event) => {
         if (keys.hasOwnProperty(event.key)) keys[event.key] = false;
     });
-
-    document.body.requestPointerLock =
-        document.body.requestPointerLock || document.body.mozRequestPointerLock;
 
     document.addEventListener('click', () => {
         document.body.requestPointerLock();
@@ -52,7 +50,7 @@ export function handleKeyboardInput(camera){
 // Função para controlar o gamepad (exemplo com PS4)
 let salazar;
 
-export function handleGamepadInput(kitties, world, scene, camera) {
+export function handleGamepadInput(kitties, world, scene, camera, salazar) {
     const gamepad = navigator.getGamepads()[0]; // Pega o primeiro controle na lista de gamepads
 
     // Verifica se existe controle e se não está em cutscene

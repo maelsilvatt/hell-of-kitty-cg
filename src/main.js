@@ -71,7 +71,7 @@ function animate() {
   handleKeyboardInput(camera);
 
   // Verifica se o controle está conectado e processa a entrada
-  handleGamepadInput(kitties, world, scene, camera);
+  handleGamepadInput(kitties, world, scene, camera, salazar);
 
   // Sincronizar jogador com a caixa de colisáo
   player.updateBody(camera);

@@ -3,7 +3,7 @@ import { playSalazarVoiceLine } from './audio.js';
 import * as THREE from 'three';
 
 export class Salazar {
-    constructor(scene, world, camera, size = 50, life = 60, speed = 7) {
+    constructor(scene, world, camera, size = 50, life = 200, speed = 7) {
         this.scene = scene;
         this.world = world;
         this.camera = camera;
@@ -22,8 +22,8 @@ export class Salazar {
     }
 
     init() {
-        // Criar o corpo físico e pegar a posição gerada
-        const spawnPosition = this.createPhysicsBody();
+        // Criar o corpo físico
+        this.createPhysicsBody();
 
         // Carregar a foto do Salazar
         const textureLoader = new THREE.TextureLoader();
@@ -38,19 +38,15 @@ export class Salazar {
 
         this.salazar = new THREE.Mesh(imageGeometry, imageMaterial);
 
-        // Garantir que a imagem aparece na posição do corpo físico
-        this.salazar.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-        this.salazar.lookAt(this.camera.position); // Para sempre ficar de frente para a câmera
-
-        // Criar barra de vida
-        const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 0.2);
+        const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 2);
         this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
             color: 0x00ff00, 
             side: THREE.DoubleSide // Garantir que é visível dos dois lados
         });
 
-        this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial);
-        this.lifeBar.position.set(spawnPosition.x, spawnPosition.y + this.size, spawnPosition.z);
+        this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial);    
+        const lifePercentage = this.life / 200;
+        this.lifeBar.scale.x = lifePercentage;  
 
         // DEBUG
         this.initSalazarDebugCube(this.scene);
@@ -108,7 +104,7 @@ export class Salazar {
             this.salazar.rotation.x = -Math.PI / 2; // Rotaciona 90° no eixo X para deitar
         }
 
-        const lifePercentage = this.life / 60;
+        const lifePercentage = this.life / 200;
         this.lifeBar.scale.x = lifePercentage;
 
         if (lifePercentage > 0.5) {
@@ -173,7 +169,7 @@ export class Salazar {
 
         // Ajustar a barra de vida para olhar para o jogador
         this.lifeBar.lookAt(this.camera.position);
-        this.lifeBar.position.set(this.salazar.position.x, this.salazar.position.y + this.size, this.salazar.position.z);
+        this.lifeBar.position.set(this.salazar.position.x, this.salazar.position.y + 0.7 *  this.size, this.salazar.position.z);
     }     
 
     // DEBUG

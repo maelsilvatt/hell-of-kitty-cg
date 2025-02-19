@@ -93,7 +93,7 @@ export function shoot(kitties, world, scene, camera, salazar = null){
     projectileBody.addEventListener("collide", (event) => {
         const collidedWith = event.body;
 
-        if (salazar && collidedWith){
+        if (salazar && collidedWith === salazar.body){
             salazar.decreaseLife(1);
             removeProjectile();            
         }
