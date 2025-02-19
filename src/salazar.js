@@ -57,17 +57,17 @@ export class Salazar {
         this.handLeft.scale.x = -1; // Inverte horizontalmente
  
         // Criar o fogo do Salazar
-        const salazar_fire_size = this.hands_size / 3;
+        const salazar_fire_size = hands_size / 2;
 
         const salazarFireMaterial = new THREE.MeshBasicMaterial({
-            map: createVideoTexture('images/Final boss/salazar_fire.webm'), // Caminho do WebM com transparência
-            side: THREE.DoubleSide,
-            transparent: true
-        });
+            map: createVideoTexture('images/Final boss/salazar_fire.webm'),
+            side: THREE.DoubleSide,  // Garante que o plano seja visível dos dois lados
+            transparent: true,
+            depthWrite: false,       // Impede que a transparência afete a profundidade
+            depthTest: true,         // Mantém o teste de profundidade ativado
+        });        
 
         this.salazar_fire = new THREE.Mesh(new THREE.PlaneGeometry(salazar_fire_size, salazar_fire_size), salazarFireMaterial);
-        this.salazar_fire.rotation.x = -Math.PI / 2; // Deita o plano
-        this.salazar_fire.rotation.x -= Math.PI / 8; // Inclina levemente para baixo
 
         // Criar a barra de vida do Salazar
         const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 2);
@@ -143,7 +143,7 @@ export class Salazar {
     }
 
     // Atualiza a movimentação do Salazar
-    updateMovement(player) {
+        updateMovement(player) {
         if (!player || !this.body || !this.salazar || this.isDead) return;
     
         const playerPos = new CANNON.Vec3(player.position.x, player.position.y, player.position.z);
@@ -213,15 +213,93 @@ export class Salazar {
         this.handRight.lookAt(this.camera.position);
         this.handLeft.lookAt(this.camera.position);
 
+        // Dispara o foguinho aleatoriamente
+        if (Math.random() < 0.01) {
+            this.fireAtPlayer(player);
+        }
+
         // Ajustar a barra de vida para olhar para o jogador
         this.lifeBar.lookAt(this.camera.position);
         this.lifeBar.position.set(this.salazar.position.x, this.salazar.position.y + 0.7 *  this.size, this.salazar.position.z);
     }     
 
     // Função responsável pelo ataques de Salazar contra o jogador
-    fireAtPlayer(camera){
+    fireAtPlayer(camera) {
+        if (!this.salazar || !this.salazar_fire || !camera) return;
+    
+        // Cria um novo foguinho baseado no original
+        const fireball = this.salazar_fire.clone();
+        this.scene.add(fireball);
+    
+        // Define a posição inicial do foguinho (mão direita de Salazar)
+        fireball.position.set(this.handRight.position.x, this.handRight.position.y + 3, this.handRight.position.z);
+    
+        // Cria um corpo físico para o foguinho
+        const hands_size = this.size / 2.2;
+        const fireBody = new CANNON.Body({
+            mass: 1,
+            shape: new CANNON.Sphere(hands_size / 2),
+            material: new CANNON.Material({ friction: 0, restitution: 0.2 })
+        });
+    
+        // Define a posição inicial do corpo físico
+        fireBody.position.copy(fireball.position);
+        this.world.addBody(fireBody);
+    
+        // Calcular a direção do disparo em relação ao jogador
+        const direction = new CANNON.Vec3(
+            camera.position.x - fireBody.position.x,
+            camera.position.y - fireBody.position.y,
+            camera.position.z - fireBody.position.z
+        );
+    
+        if (direction.length() === 0) {
+            direction.set(0, 1, 0); // Se for zero, lança para cima
+        } else {
+            direction.normalize();
+        }
+    
+        // Definir a velocidade do foguinho
+        const fireSpeed = 100;
+        fireBody.velocity.set(
+            direction.x * fireSpeed,
+            direction.y * fireSpeed,
+            direction.z * fireSpeed
+        );
+    
+        // Atualiza a posição e a rotação do foguinho conforme ele se move
+        const updateFireball = () => {
+            if (fireball && fireBody) {
+                fireball.position.copy(fireBody.position);
+    
+                // Faz o foguinho olhar na direção que está indo
+                const futurePosition = fireball.position.clone().add(new THREE.Vector3(
+                    fireBody.velocity.x,
+                    fireBody.velocity.y,
+                    fireBody.velocity.z
+                ).normalize());
 
-    }
+                fireball.lookAt(futurePosition);
+                requestAnimationFrame(updateFireball);
+            }
+        };
+        updateFireball();
+    
+        // Define o tempo de vida do projétil
+        setTimeout(() => {
+            removeFireball();
+        }, 5000);
+    
+        // Função para remover o projétil corretamente
+        const removeFireball = () => {
+            if (fireBody && this.world.bodies.includes(fireBody)) {
+                this.world.removeBody(fireBody);
+            }
+            if (fireball && this.scene.children.includes(fireball)) {
+                this.scene.remove(fireball);
+            }
+        };
+    }      
 
     // DEBUG
     initSalazarDebugCube(scene){
