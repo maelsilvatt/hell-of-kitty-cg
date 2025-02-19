@@ -14,6 +14,7 @@ export class Salazar {
         this.salazar = null;
         this.handRight = null;
         this.handLeft = null;
+        this.salazar_fire = null;
         this.lifeBar = null;
         this.body = null;
 
@@ -40,7 +41,7 @@ export class Salazar {
 
         this.salazar = new THREE.Mesh(imageGeometry, imageMaterial);
 
-        // // Criar mão direita
+        // Criar mão direita
         const hands_size = this.size / 2.2;
 
         const handRightMaterial = new THREE.MeshBasicMaterial({
@@ -54,7 +55,21 @@ export class Salazar {
         const handLeftMaterial = handRightMaterial.clone();
         this.handLeft = new THREE.Mesh(new THREE.PlaneGeometry(hands_size, hands_size), handLeftMaterial);
         this.handLeft.scale.x = -1; // Inverte horizontalmente
+ 
+        // Criar o fogo do Salazar
+        const salazar_fire_size = this.hands_size / 3;
 
+        const salazarFireMaterial = new THREE.MeshBasicMaterial({
+            map: createVideoTexture('images/Final boss/salazar_fire.webm'), // Caminho do WebM com transparência
+            side: THREE.DoubleSide,
+            transparent: true
+        });
+
+        this.salazar_fire = new THREE.Mesh(new THREE.PlaneGeometry(salazar_fire_size, salazar_fire_size), salazarFireMaterial);
+        this.salazar_fire.rotation.x = -Math.PI / 2; // Deita o plano
+        this.salazar_fire.rotation.x -= Math.PI / 8; // Inclina levemente para baixo
+
+        // Criar a barra de vida do Salazar
         const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 2);
         this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
             color: 0x00ff00, 
@@ -112,15 +127,7 @@ export class Salazar {
         
             // Permitir que a boneca tombe naturalmente
             this.body.type = CANNON.Body.DYNAMIC;
-            this.body.allowSleep = false; // Impede que ela congele antes de cair
-
-            // Sincroniza a posição da boneca com o corpo físico
-            this.salazar.position.set(
-                this.body.position.x,
-                0.3,
-                this.body.position.z
-            );
-            this.salazar.rotation.x = -Math.PI / 2; // Rotaciona 90° no eixo X para deitar
+            this.body.allowSleep = false; // Impede que ela congele
         }
 
         const lifePercentage = this.life / 200;
@@ -210,6 +217,11 @@ export class Salazar {
         this.lifeBar.lookAt(this.camera.position);
         this.lifeBar.position.set(this.salazar.position.x, this.salazar.position.y + 0.7 *  this.size, this.salazar.position.z);
     }     
+
+    // Função responsável pelo ataques de Salazar contra o jogador
+    fireAtPlayer(camera){
+
+    }
 
     // DEBUG
     initSalazarDebugCube(scene){
