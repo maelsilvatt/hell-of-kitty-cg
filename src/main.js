@@ -9,6 +9,10 @@ import { createWeapon, shoot } from './weapons.js';
 import { isFinalBossRound, isFinalBossIntroOn, startRound } from './gameProgress.js';
 import { spawnSalazar, updateSalazar } from './salazar.js';
 
+// Capturando os elementos do INDEX.HTML para manipular o comportamento do Menu
+const sideBar = document.getElementById('sidebar');
+const playButton = document.getElementById('playButton');
+
 // Configuraçãso da cena
 const scene = new THREE.Scene();
 
@@ -63,9 +67,16 @@ window.addEventListener('click', () => {
 
 // Inicia o jogo
 let round = 1;
-let roundInProgress = true;
+let roundInProgress = false;
 let kitties = [];
-kitties = startRound(kitties, scenes, world, camera, round);
+
+// Criação do evento para iniciar o jogo quando o player clicar em jogar
+playButton.addEventListener('click', () => {
+  sideBar.classList.add('slide-out'); // Esconde a sidebar
+  round = 1;
+  roundInProgress = true;
+  kitties = startRound(kitties, scenes, world, camera, round);
+});
 
 // Loop de animação
 function animate() {

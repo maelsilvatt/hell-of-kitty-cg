@@ -107,7 +107,7 @@ body {
 
 /* Classe que move a barra para fora da tela (slide para a esquerda) */
 #sidebar.slide-out {
-    transform: translateX(-300px);
+    transform: translateX(-30vw);
 }
 
 
