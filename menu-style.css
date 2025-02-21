@@ -110,7 +110,6 @@ body {
     transform: translateX(-30vw);
 }
 
-
 /* Canvas do Three.js fica por baixo do menu */
 canvas {
     display: block;

@@ -73,6 +73,7 @@ let kitties = [];
 // Criação do evento para iniciar o jogo quando o player clicar em jogar
 playButton.addEventListener('click', () => {
   sideBar.classList.add('slide-out'); // Esconde a sidebar
+
   round = 1;
   roundInProgress = true;
   kitties = startRound(kitties, scenes, world, camera, round);
