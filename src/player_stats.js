@@ -4,10 +4,11 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
 export class Player {
-    constructor(scene, world, camera, life = 5) {
+    constructor(scene, uiScene, uiCamera, world, life = 100) {
         this.scene = scene;
+        this.uiScene = uiScene;
+        this.uiCamera = uiCamera;
         this.world = world;
-        this.camera = camera;
         this.life = life;
         this.isDead = false;
         this.lifeBar = null;
@@ -25,9 +26,6 @@ export class Player {
 
         // Cria a barra de vida
         this.createLifeBar();
-
-        // Adiciona a barra de vida ao cenário
-        this.scene.add(this.lifeBar);
     }    
 
     // Cria o corpo físico do jogador
@@ -42,23 +40,36 @@ export class Player {
         this.world.addBody(this.body);
     }
 
-    createLifeBar(){
+    createLifeBar() {
         // Criar barra de vida
-        const lifeBarWidth = 2 * (this.size * 0.3); // Largura total da barra de vida
+        const lifeBarWidth = 2 * (this.size * 0.3); // Largura da barra de vida
         const lifeBarHeight = 0.2; // Altura da barra de vida
-
-        // Criar a geometria da barra de vida com a largura ajustada
+    
+        // Criar a geometria da barra de vida
         const lifeBarGeometry = new THREE.PlaneGeometry(lifeBarWidth, lifeBarHeight);
         this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
             color: 0x00ff00, 
             side: THREE.DoubleSide
         });
-
-        // Barra de vida
+    
+        // Criar a barra de vida como um mesh
         this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial);
+    
+        // Posicionar a barra no canto inferior esquerdo da tela HUD
+        const uiWidth = this.uiCamera.right - this.uiCamera.left;  // Largura da UI
+        const uiHeight = this.uiCamera.top - this.uiCamera.bottom; // Altura da UI
 
-        // Posicionar a barra no canto inferior esquerdo da tela (ajustado com coordenadas de câmera)
-        this.lifeBar.position.set(-window.innerWidth / 2 + lifeBarWidth / 2, -window.innerHeight / 2 + lifeBarHeight / 2, 0);
+        const offsetX = 0.05; // Pequeno deslocamento para não colar na borda
+        const offsetY = 0.05;
+
+        this.lifeBar.position.set(
+            this.uiCamera.left + lifeBarWidth / 2 + offsetX,  // Lado esquerdo
+            this.uiCamera.bottom + lifeBarHeight / 2 + offsetY, // Parte de baixo
+            0
+        );
+    
+        // Adicionar à cena de UI
+        this.uiScene.add(this.lifeBar);
     }
 
     decreaseLife(amount) {
@@ -73,15 +84,15 @@ export class Player {
         }
 
         // Se o jogador está vivo, a barra de vida diminui
-        this.lifeBar.scale.x = this.life / 5;
+        this.lifeBar.scale.x = this.life / 100;
     }
 
-    updateBody(player){
+    updateBody(camera){
         // Sincroniza a posição do jogador com o corpo físico
         this.body.position.set(
-            player.position.x,
-            player.position.y - this.size / 2,
-            player.position.z
+            camera.position.x,
+            camera.position.y - this.size / 2,
+            camera.position.z
         );
     }
 

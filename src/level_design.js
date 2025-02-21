@@ -62,7 +62,7 @@ export function setupPhysicsWorld() {
 export function createFloor(world, scene) {
     const island_loader = new GLTFLoader();
 
-    island_loader.load('models/candy island/candy island.glb', (gltf) => {
+    island_loader.load('models/candy island/candy island.gltf', (gltf) => {
         const islandMesh = gltf.scene; // Variável local para evitar problemas
 
         let island_size = 4;

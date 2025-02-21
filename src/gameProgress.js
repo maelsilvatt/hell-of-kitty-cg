@@ -6,14 +6,16 @@ import { blackoutScreen, showNextDialogue } from './utils.js';
 import { setupAmbientInfernal } from './level_design.js';
 
 let isFinalBossIntroOn = false;
+let isFinalBossRound = false;
+const finalBossRound = 3;
 
 // Função para iniciar um round
 export function startRound(kitties, scenes, world, camera, round) {
   if (!isFinalBossIntroOn){
         // Se chegou ao round 4, inicia a batalha final
-        if (round == 2){
+        if (round == finalBossRound){
           isFinalBossIntroOn = true;
-          playfinalBossCutscene(scenes);
+          playfinalBossCutscene(scenes, world, camera);
           setTimeout(() => {
               isFinalBossIntroOn = false;              
             }, 24000);
@@ -41,6 +43,10 @@ export function startRound(kitties, scenes, world, camera, round) {
 
 // Função que exibe a cutscene da boss fight
 function playfinalBossCutscene(scenes){
+  const scene = scenes[0];
+  const weaponScene = scenes[1];
+
+
   // Toca o som do diálogo
   playSansDialogueSound(24);
 
@@ -63,8 +69,11 @@ function playfinalBossCutscene(scenes){
   showNextDialogue(dialogues, 0);
 
   // // Muda o tom do céu para vermelho
-  setupAmbientInfernal(scenes[0]);
-  setupAmbientInfernal(scenes[1], true);
+  setupAmbientInfernal(scene);
+  setupAmbientInfernal(weaponScene, true);
+
+  // Cria o Salazar no mundo
+  isFinalBossRound = true;
 }
 
-export { isFinalBossIntroOn }
+export { isFinalBossIntroOn, isFinalBossRound }

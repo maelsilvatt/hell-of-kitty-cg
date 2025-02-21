@@ -81,7 +81,7 @@ export class Salazar {
         this.lifeBar.scale.x = lifePercentage;  
 
         // DEBUG
-        this.initSalazarDebugCube(this.scene);
+        // this.initSalazarDebugCube(this.scene);
 
         // Criar um grupo para o inimigo e a barra de vida
         const enemyGroup = new THREE.Group();
@@ -331,7 +331,7 @@ export class Salazar {
     }
 }
 
-// Função para atualizar as kitties no jogo
+// Função para atualizar o Salazar no jogo
 export function updateSalazar(salazar, scene, camera){
     if (salazar) {
         // Atualiza o movimento da kitty
@@ -347,7 +347,7 @@ export function updateSalazar(salazar, scene, camera){
         // DEBUG
 
         //Atualiza o cubo de debug
-        salazar.updateDebugCube();
+        // salazar.updateDebugCube();
 
         // Remove o cubo de debug se salazar estiver morto
         if (salazar.isDead || salazar.life < 1) {
@@ -358,6 +358,13 @@ export function updateSalazar(salazar, scene, camera){
         };
     }
 }
+
+// Cria o Salazar no mundo
+export function spawnSalazar(scene, world, camera){
+    const salazar = new Salazar(scene, world, camera);
+    return salazar;
+}
+
 
 // Cria uma textura com base em um video webM
 const createVideoTexture = (url) => {

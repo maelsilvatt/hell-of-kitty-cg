@@ -6,8 +6,8 @@ import { updateKitties } from './kitties.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
 import { createWeapon, shoot } from './weapons.js';
-import { isFinalBossIntroOn, startRound } from './gameProgress.js';
-import { Salazar, updateSalazar } from './salazar.js';
+import { isFinalBossRound, isFinalBossIntroOn, startRound } from './gameProgress.js';
+import { spawnSalazar, updateSalazar } from './salazar.js';
 
 // Configuraçãso da cena
 const scene = new THREE.Scene();
@@ -28,7 +28,13 @@ document.body.appendChild(stats.dom);
 const world = createWorld(scene);
 
 // Criação do jogador
-const player = new Player(scene, world, camera);
+// Criar uma câmera ortográfica para a interface (HUD)
+const aspect = window.innerWidth / window.innerHeight;
+const uiCamera = new THREE.OrthographicCamera(
+    -aspect, aspect, 1, -1, 0.1, 10
+);
+const uiScene = new THREE.Scene();
+const player = new Player(scene, uiScene, uiCamera, world);
 
 // Carrega a arma na cena
 const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
@@ -61,9 +67,6 @@ let roundInProgress = true;
 let kitties = [];
 kitties = startRound(kitties, scenes, world, camera, round);
 
-// DEBUG
-salazar = new Salazar(scene, world, camera);
-
 // Loop de animação
 function animate() {
   requestAnimationFrame(animate);
@@ -85,32 +88,49 @@ function animate() {
   // Atualiza o Salazar
   updateSalazar(salazar, scene, camera);
 
-  // Softlock no round 5
-  if (round > 5){
-    round = 5;
-  }
-
   // Verifica se o round atual foi concluído
   if (roundInProgress && kitties.every(kitty => kitty.life < 1)) {
     roundInProgress = false;
     round++;
 
-    // Aguarda 3 segundos e inicia o próximo round
+    // Aguarda alguns segundos e inicia o próximo round
     setTimeout(() => {
       kitties = startRound(kitties, scenes, world, camera, round);
       roundInProgress = true;
     }, 2000);
+
+    // Verifica se está no round de batalha final
+    if (isFinalBossRound){
+      salazar = spawnSalazar(scene, world, camera);
+      isFinalBossRound = false;
+    }
+
+    // Softlock no round 5 para não sobrecarregar o sistema
+    if (round > 1){
+      round = 1;
+    }
   }
 
-  // Renderiza a cena principal
-  renderer.render(scene, camera);
-
-  // Sincroniza a cena da arma com a câmera e renderiza sobre a cena principal
-  weaponScene.position.copy(camera.position);
-  weaponScene.quaternion.copy(camera.quaternion);
-  renderer.autoClear = false;
-  renderer.clearDepth();
-  renderer.render(weaponScene, camera);
+  // Renderiza todas as cenas
+  render();
 }
 
 animate();
+
+// Renderiza as cenas do jogo
+function render() {
+  renderer.autoClear = false;
+  
+  // Renderiza a cena principal do jogo
+  renderer.render(scene, camera);
+
+  // Renderiza a arma sincronizada com a câmera principal
+  weaponScene.position.copy(camera.position);
+  weaponScene.quaternion.copy(camera.quaternion);
+  renderer.clearDepth(); 
+  renderer.render(weaponScene, camera);
+
+  // Renderiza a HUD
+  renderer.clearDepth();  
+  renderer.render(uiScene, uiCamera);
+}
