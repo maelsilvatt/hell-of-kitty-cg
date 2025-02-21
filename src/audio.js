@@ -3,11 +3,11 @@
 let backgroundMusic;
 
 // Função para carregar e tocar a música
-export function playBackgroundMusic() {
+export function playBackgroundMusic(songPath, volume = 0.5) {
     // Criação de um novo objeto de áudio
-    backgroundMusic = new Audio('sound_effects/doki doki rock cover.mp3'); // Altere o caminho para a sua música
-    backgroundMusic.loop = true; // Configura a música para tocar em loop
-    backgroundMusic.volume = 0.5; // Define o volume (0.0 a 1.0)
+    backgroundMusic = new Audio(songPath); 
+    backgroundMusic.loop = true; 
+    backgroundMusic.volume = volume;
 
     // Tocar a música
     backgroundMusic.play().catch(error => {
@@ -22,9 +22,6 @@ export function stopBackgroundMusic() {
         backgroundMusic.currentTime = 0; // Reseta para o início da música
     }
 }
-
-// Variáveis para armazenar o efeito de som de tiro
-let gunshotSound;
 
 // Função para carregar e tocar o efeito de tiro
 export function playGunshotSound() {
@@ -67,4 +64,66 @@ export function playKittyVoiceLine() {
         console.error('Erro ao tentar reproduzir o som da Kitty:', error);
         isKittyVoicePlaying = false;
     });
+}
+
+
+
+export function playSalazarVoiceLine(){
+    
+}
+
+let isVoiceLinePlaying = false; // Variável para controlar se um som está em reprodução
+
+export function playVoiceLine(voiceLines) {
+    if (isVoiceLinePlaying) return; // Impede que um novo som seja iniciado enquanto outro está tocando
+
+    // Escolhe um dos sons aleatoriamente
+    const randomSound = voiceLines[Math.floor(Math.random() * kittyVoiceLines.length)];
+
+    // Cria uma nova instância do áudio com o som escolhido
+    const voiceLine = new Audio(randomSound);
+    voiceLine.volume = 0.4; 
+
+    isVoiceLinePlaying = true;
+
+    // Quando o som termina, libera para o próximo
+    voiceLine.onended = () => {
+        isVoiceLinePlaying = false;
+    };
+
+    // Toca o som e trata erros
+    voiceLine.play().catch(error => {
+        console.error('Erro ao tentar reproduzir o som da Kitty:', error);
+        isVoiceLinePlaying = false;
+    });
+}
+
+// Variáveis para armazenar o efeito de som do Sans
+let sansDialogueSound = null;  // Mantém a instância do som
+
+// Função para carregar e tocar o som do Sans por um tempo específico
+export function playSansDialogueSound(durationInSeconds) {
+    // Verifica se já há um som tocando
+    if (sansDialogueSound && !sansDialogueSound.paused) {
+        sansDialogueSound.pause();  // Interrompe o som se ele estiver tocando
+        sansDialogueSound.currentTime = 0;  // Reseta o som
+    }
+
+    // Cria uma nova instância do áudio caso não haja um som tocando
+    sansDialogueSound = new Audio('sound_effects/Sans Dialogue Sound Effect.mp3');
+    sansDialogueSound.volume = 0.6;
+    sansDialogueSound.loop = true; 
+
+    // Toca o som imediatamente
+    sansDialogueSound.play().catch(error => {
+        console.error('Erro ao tentar reproduzir o som do Sans:', error);
+    });
+
+    // Após o tempo especificado, para o som (corta imediatamente)
+    setTimeout(() => {
+        if (sansDialogueSound) {
+            sansDialogueSound.pause();  // Interrompe o som imediatamente
+            sansDialogueSound.currentTime = 0;  // Reseta o som para o início
+        }
+    }, durationInSeconds * 1000);  // Multiplica por 1000 para converter de segundos para milissegundos
 }

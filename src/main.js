@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import Stats from 'stats.js';
 import { setupControls, handleGamepadInput, handleKeyboardInput } from './controls.js';
 import { createWorld } from './level_design.js';
-import { updateKitties } from './enemies.js';
+import { updateKitties } from './kitties.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
 import { createWeapon, shoot } from './weapons.js';
-import { startRound, checkRound } from './gameProgress.js';
+import { isFinalBossRound, isFinalBossIntroOn, startRound } from './gameProgress.js';
+import { spawnSalazar, updateSalazar } from './salazar.js';
 
 // Configuraçãso da cena
 const scene = new THREE.Scene();
@@ -27,18 +28,32 @@ document.body.appendChild(stats.dom);
 const world = createWorld(scene);
 
 // Criação do jogador
-const player = new Player(scene, world, camera);
+// Criar uma câmera ortográfica para a interface (HUD)
+const aspect = window.innerWidth / window.innerHeight;
+const uiCamera = new THREE.OrthographicCamera(
+    -aspect, aspect, 1, -1, 0.1, 10
+);
+const uiScene = new THREE.Scene();
+const player = new Player(scene, uiScene, uiCamera, world);
 
 // Carrega a arma na cena
 const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
 createWeapon(weaponScene);
 
+// Cria um array com as cenas
+const scenes = [scene, weaponScene];
+
 // Variável para garantir que a música toque apenas uma vez (configuração de debug)
 let musicPlayed = true; 
 
 // Dispara ao clicar na tela e toca a música de fundo (uma vez)
+let salazar;
+
 window.addEventListener('click', () => {
-  shoot(kitties, world, scene, camera);
+  // Bloqueira os tiros se estiver em cutscene
+  if ( !isFinalBossIntroOn ){
+    shoot(kitties, world, scene, camera, salazar);
+  }
 
   if (!musicPlayed) {
     playBackgroundMusic();
@@ -48,9 +63,9 @@ window.addEventListener('click', () => {
 
 // Inicia o jogo
 let round = 1;
-let roundInProgress = false;
+let roundInProgress = true;
 let kitties = [];
-kitties = startRound(kitties, scene, world, camera, round, roundInProgress);
+kitties = startRound(kitties, scenes, world, camera, round);
 
 // Loop de animação
 function animate() {
@@ -62,7 +77,7 @@ function animate() {
   handleKeyboardInput(camera);
 
   // Verifica se o controle está conectado e processa a entrada
-  handleGamepadInput(kitties, world, scene, camera);
+  handleGamepadInput(kitties, world, scene, camera, salazar);
 
   // Sincronizar jogador com a caixa de colisáo
   player.updateBody(camera);
@@ -70,18 +85,52 @@ function animate() {
   // Atualiza todas as Kitties
   updateKitties(kitties, scene, camera);
 
+  // Atualiza o Salazar
+  updateSalazar(salazar, scene, camera);
+
   // Verifica se o round atual foi concluído
-  [round, roundInProgress, kitties] = checkRound(kitties, scene, world, camera, round, roundInProgress);
+  if (roundInProgress && kitties.every(kitty => kitty.life < 1)) {
+    roundInProgress = false;
+    round++;
 
-  // Renderiza a cena principal
-  renderer.render(scene, camera);
+    // Aguarda alguns segundos e inicia o próximo round
+    setTimeout(() => {
+      kitties = startRound(kitties, scenes, world, camera, round);
+      roundInProgress = true;
+    }, 2000);
 
-  // Sincroniza a cena da arma com a câmera e renderiza sobre a cena principal
-  weaponScene.position.copy(camera.position);
-  weaponScene.quaternion.copy(camera.quaternion);
-  renderer.autoClear = false;
-  renderer.clearDepth();
-  renderer.render(weaponScene, camera);
+    // Verifica se está no round de batalha final
+    if (isFinalBossRound){
+      salazar = spawnSalazar(scene, world, camera);
+      isFinalBossRound = false;
+    }
+
+    // Softlock no round 5 para não sobrecarregar o sistema
+    if (round > 1){
+      round = 1;
+    }
+  }
+
+  // Renderiza todas as cenas
+  render();
 }
 
 animate();
+
+// Renderiza as cenas do jogo
+function render() {
+  renderer.autoClear = false;
+  
+  // Renderiza a cena principal do jogo
+  renderer.render(scene, camera);
+
+  // Renderiza a arma sincronizada com a câmera principal
+  weaponScene.position.copy(camera.position);
+  weaponScene.quaternion.copy(camera.quaternion);
+  renderer.clearDepth(); 
+  renderer.render(weaponScene, camera);
+
+  // Renderiza a HUD
+  renderer.clearDepth();  
+  renderer.render(uiScene, uiCamera);
+}

@@ -14,6 +14,43 @@ export function setupLighting(scene) {
     scene.add(directionalLight);
 }
 
+function clearLights(scene) {
+    // Filtra e remove todos os objetos do tipo Light
+    scene.children.forEach((object) => {
+        if (object.isLight) {
+            scene.remove(object);
+        }
+    });
+  }
+  
+  export function setupAmbientInfernal(scene, isWeapon = false) {
+    // Remove todas as luzes antigas
+    clearLights(scene);
+
+    // Iluminação ambiente avermelhada e fraca
+    const ambientLight = new THREE.AmbientLight(0x550000, 0.3); // Vermelho escuro e fraco
+    scene.add(ambientLight);
+  
+
+    if (!isWeapon){
+        scene.background = new THREE.Color(0x8B0000); // Vermelho escuro
+
+        // Luz direcional alaranjada, mais forte e vinda de baixo (como se fosse de lava)
+        const directionalLight = new THREE.DirectionalLight(0xff4500, 1.5); // Laranja forte
+        directionalLight.position.set(5, -10, 5); // Vindo de baixo para efeito dramático
+        scene.add(directionalLight);
+        
+        // Luzes pontuais avermelhadas simulando chamas ou lava
+        const fireLight1 = new THREE.PointLight(0xff3300, 2, 10);
+        fireLight1.position.set(0, 3, 0);
+        scene.add(fireLight1);
+    
+        const fireLight2 = new THREE.PointLight(0xff2200, 1.5, 8);
+        fireLight2.position.set(-4, 2, -3);
+        scene.add(fireLight2);
+    }
+  }
+
 export function setupPhysicsWorld() {
     // Mundo da física
     const world = new CANNON.World();
@@ -25,7 +62,7 @@ export function setupPhysicsWorld() {
 export function createFloor(world, scene) {
     const island_loader = new GLTFLoader();
 
-    island_loader.load('models/candy island/candy island.glb', (gltf) => {
+    island_loader.load('models/candy island/candy island.gltf', (gltf) => {
         const islandMesh = gltf.scene; // Variável local para evitar problemas
 
         let island_size = 4;
@@ -63,8 +100,7 @@ export function createWalls(world, wallSize, room_size) {
 
 export function createWorld(scene, room_size = 100) {
     // Configura o fundo da cena
-    scene.background = new THREE.Color(0xdcabd5); // Rosa pastel
-    // scene.background = new THREE.Color(0x3ee4ed); // Azul celeste
+    scene.background = new THREE.Color(0xdcabd5); // Rosa pastel    
     
     // Configura a iluminação
     setupLighting(scene);
