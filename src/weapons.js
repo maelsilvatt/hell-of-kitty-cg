@@ -67,12 +67,8 @@ export function shoot(kitties, world, scene, camera, salazar = null){
 
     // Atualiza a posição do projétil e remove-o quando sair da área
     function updateProjectile() {
-        projectileMesh.position.copy(projectileBody.position);
-        if (projectileBody.position.z < -100) {
-        removeProjectile();
-        } else {
+        projectileMesh.position.copy(projectileBody.position);        
         requestAnimationFrame(updateProjectile);
-        }
     }
     updateProjectile();
 
