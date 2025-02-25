@@ -6,7 +6,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { setupLighting } from './level_design.js';
 import { playGunshotSound } from './audio.js';
 
-let gunMesh;
+export let gunMesh = null;
+const GUN_ROTATION = new THREE.Euler(0, (2 / 3.3) * Math.PI, 0);
 
 export function createWeapon(weaponScene){
     // Carrega o modelo da arma
@@ -19,7 +20,7 @@ export function createWeapon(weaponScene){
         gunMesh.scale.set(gun_size, gun_size, gun_size); // Ajuste do tamanho da arma
         
         // Rotação para inclinar levemente para a esquerda
-        gunMesh.rotation.set(0, (2/3.3) * Math.PI, 0);  
+        gunMesh.rotation.copy(GUN_ROTATION);
 
         // Posicionamento da arma no canto direito e um pouco abaixo
         gunMesh.position.set(2.3, -2.3, -5.5); 
@@ -56,10 +57,14 @@ export function shoot(kitties, world, scene, camera, salazar = null){
     projectileBody.position.set(muzzlePosition.x, muzzlePosition.y, muzzlePosition.z);
     world.addBody(projectileBody);
 
-    // Obtém a direção para disparo
-    const direction = new THREE.Vector3();
+    // Ajusta a direção dos disparos
+    const direction = new THREE.Vector3(0, 0, -1);
     camera.getWorldDirection(direction);
-    direction.x -= 0.3;
+    direction.normalize();
+    
+    // Cria um vetor de rotação ao redor do eixo Y para ajustar a direção
+    const leftAdjustment = new THREE.Matrix4().makeRotationY(0.25);
+    direction.applyMatrix4(leftAdjustment);
 
     const fire_vel = 100;
     const velocity = new CANNON.Vec3(direction.x * fire_vel, direction.y * fire_vel, direction.z * fire_vel);
