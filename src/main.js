@@ -83,10 +83,10 @@ export function animate(time) {
   handleGamepadInput(kitties, world, scene, camera, salazar);
 
   // Sincronizar jogador com a caixa de colisáo
-  player.updateBody(camera);
+  player.updateBody();
 
   // Atualiza todas as Kitties
-  updateKitties(kitties, scene, camera);
+  updateKitties(player, kitties, scene, camera);
 
   // Atualiza o Salazar
   updateSalazar(salazar, scene, camera);

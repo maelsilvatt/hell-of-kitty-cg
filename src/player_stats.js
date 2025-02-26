@@ -2,6 +2,8 @@
 
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import { camera } from './controls';
+import { showGameOverScreen } from './gameProgress';
 
 // Criar uma câmera ortográfica para a interface (HUD)
 const aspect = window.innerWidth / window.innerHeight;
@@ -34,24 +36,24 @@ export class Player {
         this.createPhysicsBody();
 
         // Cria a barra de vida
-        // this.createLifeBar();
+        this.createLifeBar();
 
         // Cria o score de pontos
         this.createScoreIndicator()
     }    
 
     // Cria o corpo físico do jogador
-    createPhysicsBody() {
-        // const position = this.camera.position;
-        const position = new THREE.Vector3(0, 0, 0);
+    createPhysicsBody() {        
         const size = 8;
+        const position = new CANNON.Vec3(camera.position.x, this.size / 2, camera.position.z);
 
         const shape = new CANNON.Box(new CANNON.Vec3(size / 4, size / 2, size / 4));
-        this.body = new CANNON.Body({ mass: 0, position, linearDamping: 0.4, angularDamping: 1 });
+        this.body = new CANNON.Body({ mass: 0.5, position, linearDamping: 0, angularDamping: 1 });
         this.body.addShape(shape);
         this.world.addBody(this.body);
     }
 
+    // Cria a barra de vida do jogador
     createLifeBar() {
         // Criar o contêiner da barra de vida
         this.lifeBarContainer = document.createElement('div');
@@ -82,6 +84,7 @@ export class Player {
         this.lifeBar.style.width = `${Math.max(0, Math.min(healthPercentage, 100))}%`;
     }
 
+    // Diminui a vida do jogador
     decreaseLife(amount) {
         if (this.isDead) return;
 
@@ -91,14 +94,17 @@ export class Player {
         if (this.life <= 0) {
             this.life = 0;
             this.isDead = true;
+
+            // Exibe a tela de game over
+            showGameOverScreen();
         }
 
         // Se o jogador está vivo, a barra de vida diminui
-        this.updateLifeBar(this.life/100);
+        this.updateLifeBar(this.life);
     }
 
-    updateBody(camera){
-        // Sincroniza a posição do jogador com o corpo físico
+    // Sincroniza a posição do jogador com o corpo físico
+    updateBody(){
         this.body.position.set(
             camera.position.x,
             camera.position.y - this.size / 2,
@@ -106,6 +112,7 @@ export class Player {
         );
     }
 
+    // Cria o indicador de pontuação
     createScoreIndicator() {
         this.scoreElement = document.createElement('div');
         this.scoreElement.style.position = 'absolute';

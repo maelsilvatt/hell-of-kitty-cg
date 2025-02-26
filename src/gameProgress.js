@@ -130,5 +130,55 @@ Anderson Ivanildo – Documentação e HUD
   document.body.appendChild(creditsScreen);
 }
 
+export function showGameOverScreen() {
+  // Força o pause do jogo
+  isFinalBossIntroOn = true;
+  
+  // Criar fundo preto
+  const gameOverScreen = document.createElement('div');
+  gameOverScreen.style.position = 'fixed';
+  gameOverScreen.style.top = '0';
+  gameOverScreen.style.left = '0';
+  gameOverScreen.style.width = '100vw';
+  gameOverScreen.style.height = '100vh';
+  gameOverScreen.style.backgroundColor = 'black';
+  gameOverScreen.style.display = 'flex';
+  gameOverScreen.style.flexDirection = 'column';
+  gameOverScreen.style.justifyContent = 'center';
+  gameOverScreen.style.alignItems = 'center';
+  gameOverScreen.style.color = 'red';
+  gameOverScreen.style.fontFamily = '"Press Start 2P", Arial, sans-serif';
+  gameOverScreen.style.fontSize = '40px';
+  gameOverScreen.style.textAlign = 'center';
+  gameOverScreen.style.zIndex = '9999';
+
+  // Criar texto "VOCÊ MORREU"
+  const gameOverText = document.createElement('div');
+  gameOverText.innerText = 'VOCÊ MORREU';
+  gameOverText.style.fontSize = '50px';
+  gameOverText.style.fontWeight = 'bold';
+  gameOverText.style.marginBottom = '20px';
+
+  // Criar botão de reiniciar
+  const restartButton = document.createElement('button');
+  restartButton.innerText = 'Tentar novamente';
+  restartButton.style.fontSize = '20px';
+  restartButton.style.padding = '10px 20px';
+  restartButton.style.marginTop = '20px';
+  restartButton.style.border = 'none';
+  restartButton.style.cursor = 'pointer';
+  restartButton.style.fontFamily = '"Press Start 2P", Arial, sans-serif';
+  restartButton.style.backgroundColor = 'white';
+  restartButton.style.color = 'black';
+  
+  restartButton.addEventListener('click', () => {
+    location.reload(); // Reinicia a página para recomeçar o jogo
+  });
+
+  // Adicionar elementos à tela
+  gameOverScreen.appendChild(gameOverText);
+  gameOverScreen.appendChild(restartButton);
+  document.body.appendChild(gameOverScreen);
+}
 
 export { isFinalBossIntroOn, isFinalBossRound }
