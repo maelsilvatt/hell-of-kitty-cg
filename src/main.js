@@ -93,14 +93,13 @@ function animate() {
     }, 2000);
 
     // Verifica se está no round de batalha final
-    if (isFinalBossRound){
-      salazar = spawnSalazar(scene, world, camera);
-      isFinalBossRound = false;
+    if (isFinalBossRound && !salazar){
+      salazar = spawnSalazar(scene, world, camera);      
     }
 
-    // Softlock no round 5 para não sobrecarregar o sistema
-    if (round > 1){
-      round = 1;
+    // Softlock no round 4 para não sobrecarregar o sistema
+    if (round > 4){
+      round = 4;
     }
   }
 
