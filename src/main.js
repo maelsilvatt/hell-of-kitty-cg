@@ -59,7 +59,10 @@ let kitties = [];
 loadGame();
 
 // Função do loop de animação
-function animate() {
+export function animate() {
+  // Se a intro do boss estiver ativa, o jogo pausa
+  if (isFinalBossIntroOn) return;
+
   requestAnimationFrame(animate);
   world.step(1 / 60);
 

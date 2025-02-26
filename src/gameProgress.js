@@ -1,6 +1,7 @@
 // gameProgress.js
 
 import { addKitties } from './kitties.js';
+import { animate } from './main.js';
 import { addBombKitties } from './bombKitties.js';
 import { playBackgroundMusic, playSansDialogueSound } from './audio.js';
 import { blackoutScreen, showNextDialogue } from './utils.js';
@@ -18,7 +19,8 @@ export function startRound(kitties, scenes, world, camera, round) {
           isFinalBossIntroOn = true;
           playfinalBossCutscene(scenes, world, camera);
           setTimeout(() => {
-              isFinalBossIntroOn = false;              
+              isFinalBossIntroOn = false;        
+              animate();      
             }, 24000);
           
           return kitties;
