@@ -1,21 +1,16 @@
 import * as THREE from 'three';
 import Stats from 'stats.js';
-import { setupControls, handleGamepadInput, handleKeyboardInput } from './controls.js';
-import { createWorld } from './level_design.js';
+import { camera, handleGamepadInput, handleKeyboardInput } from './controls.js';
+import { scene, createWorld } from './level_design.js';
 import { updateKitties } from './kitties.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
-import { createWeapon, shoot } from './weapons.js';
+import { weaponScene, createWeapon, shoot } from './weapons.js';
 import { isFinalBossRound, isFinalBossIntroOn, startRound } from './gameProgress.js';
 import { spawnSalazar, updateSalazar } from './salazar.js';
+import { loadAllModels } from './loadModels.js';
 
-// Configuraçãso da cena
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-setupControls(camera);
-camera.position.set(0, 5, 20);
-
+// Inicialização
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -27,7 +22,6 @@ document.body.appendChild(stats.dom);
 // Criação do mundo físico
 const world = createWorld(scene);
 
-// Criação do jogador
 // Criar uma câmera ortográfica para a interface (HUD)
 const aspect = window.innerWidth / window.innerHeight;
 const uiCamera = new THREE.OrthographicCamera(
@@ -35,10 +29,6 @@ const uiCamera = new THREE.OrthographicCamera(
 );
 const uiScene = new THREE.Scene();
 const player = new Player(scene, uiScene, uiCamera, world);
-
-// Carrega a arma na cena
-const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
-createWeapon(weaponScene);
 
 // Cria um array com as cenas
 const scenes = [scene, weaponScene];
@@ -61,16 +51,19 @@ window.addEventListener('click', () => {
   }
 });
 
-// Inicia o jogo
+// Carrega assets do jogo
 let round = 1;
 let roundInProgress = true;
 let kitties = [];
-kitties = startRound(kitties, scenes, world, camera, round);
 
-// Loop de animação
+loadGame();
+
+// Função do loop de animação
 function animate() {
   requestAnimationFrame(animate);
   world.step(1 / 60);
+
+  // Atualiza o monitor de desempenho
   stats.update();
 
   // Movimentação com WASD
@@ -115,8 +108,6 @@ function animate() {
   render();
 }
 
-animate();
-
 // Renderiza as cenas do jogo
 function render() {
   renderer.autoClear = false;
@@ -133,4 +124,28 @@ function render() {
   // Renderiza a HUD
   renderer.clearDepth();  
   renderer.render(uiScene, uiCamera);
+}
+
+// Carrega os recursos do jogo
+async function loadGame() {
+  try {
+    // Aguarda o carregamento de todos os modelos
+    await loadAllModels();    
+
+    // Agora que os modelos estão carregados, cria a arma
+    createWeapon(weaponScene);
+
+    // Só inicia o jogo agora, após garantir que os modelos estão carregados
+    startGame();
+
+    animate();
+
+  } catch (error) {
+    console.error('❌ Erro ao carregar os modelos:', error);
+  }
+}
+
+// Inicia o primeiro round
+function startGame() { 
+  kitties = startRound(kitties, scenes, world, camera, round);
 }

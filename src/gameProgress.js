@@ -1,6 +1,7 @@
 // gameProgress.js
 
 import { addKitties } from './kitties.js';
+import { addBombKitties } from './bombKitties.js';
 import { playBackgroundMusic, playSansDialogueSound } from './audio.js';
 import { blackoutScreen, showNextDialogue } from './utils.js';
 import { setupAmbientInfernal } from './level_design.js';
@@ -30,6 +31,7 @@ export function startRound(kitties, scenes, world, camera, round) {
         const numKitties = round * 4;
         for (let i = 0; i < numKitties; i++) {
           addKitties(kitties, scenes[0], world, camera);
+          // addBombKitties(kitties, scenes[0], world, camera);
     
           // Inicializa o cubo de debug se necessário
           // kitties[i].initKittyDebugCube(scene);

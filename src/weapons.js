@@ -2,31 +2,34 @@
 
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { setupLighting } from './level_design.js';
 import { playGunshotSound } from './audio.js';
+import { models } from './loadModels.js';
 
 export let gunMesh = null;
 const GUN_ROTATION = new THREE.Euler(0, (2 / 3.3) * Math.PI, 0);
 
-export function createWeapon(weaponScene){
+export const weaponScene = new THREE.Scene(); // Cria uma cena separada para a arma
+
+export async function createWeapon(weaponScene){
     // Carrega o modelo da arma
     setupLighting(weaponScene);
 
-    const weapon_loader = new GLTFLoader();
-    weapon_loader.load('models/kawaii gun/scene.gltf', (gltf) => {
-        gunMesh = gltf.scene;
-        let gun_size =  10;
-        gunMesh.scale.set(gun_size, gun_size, gun_size); // Ajuste do tamanho da arma
-        
-        // Rotação para inclinar levemente para a esquerda
-        gunMesh.rotation.copy(GUN_ROTATION);
+    // Acessa o modelo de arma já carregado
+    gunMesh = await models.kawaiiGun;
 
-        // Posicionamento da arma no canto direito e um pouco abaixo
-        gunMesh.position.set(2.3, -2.3, -5.5); 
-        
-        weaponScene.add(gunMesh); // Adiciona a arma na cena separada
-    });
+    gunMesh = gunMesh.clone(true);
+
+    let gun_size =  10;
+    gunMesh.scale.set(gun_size, gun_size, gun_size); // Ajuste do tamanho da arma
+    
+    // Rotação para inclinar levemente para a esquerda
+    gunMesh.rotation.copy(GUN_ROTATION);
+
+    // Posicionamento da arma no canto direito e um pouco abaixo
+    gunMesh.position.set(2.3, -2.3, -5.5); 
+    
+    weaponScene.add(gunMesh); // Adiciona a arma na cena separada
 }
 
 export function shoot(kitties, world, scene, camera, salazar = null){
