@@ -32,13 +32,15 @@ export function startRound(kitties, scenes, world, camera, round) {
         // Define a quantidade de inimigos com base no round (exemplo: round * 4)
         const numKitties = round * 4;
         for (let i = 0; i < numKitties; i++) {
-          addKitties(kitties, scenes[0], world, camera);
-          // addBombKitties(kitties, scenes[0], world, camera);
-    
-          // Inicializa o cubo de debug se necessário
-          // kitties[i].initKittyDebugCube(scene);
+          if (Math.random() < 0.3) {
+              // 30% de chance de ser um bombKitty
+              addBombKitties(kitties, scenes[0], world, camera);
+          } else {
+              // Caso contrário, é um kitty normal
+              addKitties(kitties, scenes[0], world, camera);
+          }
         }
-    
+      
         return kitties;
   }
 

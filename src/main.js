@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import Stats from 'stats.js';
+import TWEEN from '@tweenjs/tween.js';
 import { camera, handleGamepadInput, handleKeyboardInput } from './controls.js';
 import { scene, createWorld } from './level_design.js';
 import { updateKitties } from './kitties.js';
@@ -59,12 +60,13 @@ let kitties = [];
 loadGame();
 
 // Função do loop de animação
-export function animate() {
+export function animate(time) {
   // Se a intro do boss estiver ativa, o jogo pausa
   if (isFinalBossIntroOn) return;
 
   requestAnimationFrame(animate);
   world.step(1 / 60);
+  TWEEN.update(time); // Atualiza as animações Tween
 
   // Atualiza o monitor de desempenho
   stats.update();
@@ -101,8 +103,8 @@ export function animate() {
     }
 
     // Softlock no round 4 para não sobrecarregar o sistema
-    if (round > 4){
-      round = 4;
+    if (round > 1){
+      round = 1;
     }
   }
 
@@ -140,8 +142,6 @@ async function loadGame() {
     // Só inicia o jogo agora, após garantir que os modelos estão carregados
     startGame();
 
-    animate();
-
   } catch (error) {
     console.error('❌ Erro ao carregar os modelos:', error);
   }
@@ -150,4 +150,6 @@ async function loadGame() {
 // Inicia o primeiro round
 function startGame() { 
   kitties = startRound(kitties, scenes, world, camera, round);
+
+  animate();
 }

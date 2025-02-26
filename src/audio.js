@@ -66,7 +66,28 @@ export function playKittyVoiceLine() {
     });
 }
 
+let isBombKittyVoicePlaying = false; // Variável para controlar se um som está em reprodução
 
+export function playBombKittyVoiceLine() {
+    if (isBombKittyVoicePlaying) return; // Impede que um novo som seja iniciado enquanto outro está tocando
+
+    // Cria uma nova instância do áudio com o som escolhido
+    const kittyVoiceLine = new Audio('sound_effects/explosion.mp3');
+    kittyVoiceLine.volume = 0.5; 
+
+    isBombKittyVoicePlaying = true;
+
+    // Quando o som termina, libera para o próximo
+    kittyVoiceLine.onended = () => {
+        isBombKittyVoicePlaying = false;
+    };
+
+    // Toca o som e trata erros
+    kittyVoiceLine.play().catch(error => {
+        console.error('Erro ao tentar reproduzir o som da bomb kitty:', error);
+        isBombKittyVoicePlaying = false;
+    });
+}
 
 export function playSalazarVoiceLine(){
     
