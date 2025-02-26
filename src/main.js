@@ -34,21 +34,13 @@ const player = new Player(scene, uiScene, uiCamera, world);
 // Cria um array com as cenas
 const scenes = [scene, weaponScene];
 
-// Variável para garantir que a música toque apenas uma vez (configuração de debug)
-let musicPlayed = true; 
-
-// Dispara ao clicar na tela e toca a música de fundo (uma vez)
+// Dispara ao clicar na tela
 let salazar;
 
 window.addEventListener('click', () => {
   // Bloqueira os tiros se estiver em cutscene
   if ( !isFinalBossIntroOn ){
     shoot(kitties, world, scene, camera, salazar);
-  }
-
-  if (!musicPlayed) {
-    playBackgroundMusic();
-    musicPlayed = true;
   }
 });
 
@@ -103,8 +95,8 @@ export function animate(time) {
     }
 
     // Softlock no round 4 para não sobrecarregar o sistema
-    if (round > 1){
-      round = 1;
+    if (round > 5){
+      round = 5;
     }
   }
 
@@ -150,6 +142,7 @@ async function loadGame() {
 // Inicia o primeiro round
 function startGame() { 
   kitties = startRound(kitties, scenes, world, camera, round);
+  playBackgroundMusic();
 
   animate();
 }

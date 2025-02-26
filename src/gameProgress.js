@@ -3,7 +3,7 @@
 import { addKitties } from './kitties.js';
 import { animate } from './main.js';
 import { addBombKitties } from './bombKitties.js';
-import { playBackgroundMusic, playSansDialogueSound } from './audio.js';
+import { playSansDialogueSound } from './audio.js';
 import { blackoutScreen, showNextDialogue } from './utils.js';
 import { setupAmbientInfernal } from './level_design.js';
 
@@ -55,9 +55,6 @@ function playfinalBossCutscene(scenes){
 
   // Toca o som do diálogo
   playSansDialogueSound(24);
-
-  // Inicia a música da boss fight
-  playBackgroundMusic('sound_effects/Undertale - Megalovania.mp3', 0.7);
 
   // Deixa a tela preta
   blackoutScreen();
