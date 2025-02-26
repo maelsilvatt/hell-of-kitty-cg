@@ -143,7 +143,7 @@ export class Salazar {
     }
 
     // Atualiza a movimentação do Salazar
-        updateMovement(player) {
+    updateMovement(player) {
         if (!player || !this.body || !this.salazar || this.isDead) return;
     
         const playerPos = new CANNON.Vec3(player.position.x, player.position.y, player.position.z);

@@ -34,7 +34,7 @@ export class Player {
         this.createPhysicsBody();
 
         // Cria a barra de vida
-        this.createLifeBar();
+        // this.createLifeBar();
 
         // Cria o score de pontos
         this.createScoreIndicator()
@@ -53,35 +53,33 @@ export class Player {
     }
 
     createLifeBar() {
-        // Criar barra de vida
-        const lifeBarWidth = 2 * (this.size * 0.3); // Largura da barra de vida
-        const lifeBarHeight = 0.2; // Altura da barra de vida
+        // Criar o contêiner da barra de vida
+        this.lifeBarContainer = document.createElement('div');
+        this.lifeBarContainer.style.position = 'absolute';
+        this.lifeBarContainer.style.bottom = '10px';
+        this.lifeBarContainer.style.left = '10px';
+        this.lifeBarContainer.style.width = '300px'; // Largura fixa
+        this.lifeBarContainer.style.height = '20px'; // Altura fixa
+        this.lifeBarContainer.style.backgroundColor = 'rgba(255, 0, 0, 0.5)'; // Fundo vermelho semitransparente
+        this.lifeBarContainer.style.border = '2px solid white';
+        this.lifeBarContainer.style.borderRadius = '5px';
+        
+        // Criar a barra de vida interna (verde)
+        this.lifeBar = document.createElement('div');
+        this.lifeBar.style.width = '100%'; // Começa cheia
+        this.lifeBar.style.height = '100%';
+        this.lifeBar.style.backgroundColor = 'limegreen';
+        this.lifeBar.style.borderRadius = '3px';
     
-        // Criar a geometria da barra de vida
-        const lifeBarGeometry = new THREE.PlaneGeometry(lifeBarWidth, lifeBarHeight);
-        this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0x00ff00, 
-            side: THREE.DoubleSide
-        });
+        // Adicionar a barra dentro do contêiner
+        this.lifeBarContainer.appendChild(this.lifeBar);
+        document.body.appendChild(this.lifeBarContainer);
+    }
     
-        // Criar a barra de vida como um mesh
-        this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial);
-    
-        // Posicionar a barra no canto inferior esquerdo da tela HUD
-        const uiWidth = this.uiCamera.right - this.uiCamera.left;  // Largura da UI
-        const uiHeight = this.uiCamera.top - this.uiCamera.bottom; // Altura da UI
-
-        const offsetX = 0.05; // Pequeno deslocamento para não colar na borda
-        const offsetY = 0.05;
-
-        this.lifeBar.position.set(
-            this.uiCamera.left + lifeBarWidth / 2 + offsetX,  // Lado esquerdo
-            this.uiCamera.bottom + lifeBarHeight / 2 + offsetY, // Parte de baixo
-            0
-        );
-    
-        // Adicionar à cena de UI
-        this.uiScene.add(this.lifeBar);
+    // Método para atualizar a vida
+    updateLifeBar(healthPercentage) {
+        // healthPercentage deve estar entre 0 e 100
+        this.lifeBar.style.width = `${Math.max(0, Math.min(healthPercentage, 100))}%`;
     }
 
     decreaseLife(amount) {
@@ -96,7 +94,7 @@ export class Player {
         }
 
         // Se o jogador está vivo, a barra de vida diminui
-        this.lifeBar.scale.x = this.life / 100;
+        this.updateLifeBar(this.life/100);
     }
 
     updateBody(camera){

@@ -21,20 +21,23 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Monitor de desempenho (FPS)
-const stats = new Stats();
-document.body.appendChild(stats.dom);
+let monitoringFPS = false;
+let stats;
+
+if (monitoringFPS){
+  stats = new Stats();
+  document.body.appendChild(stats.dom);
+}
 
 // Criação do mundo físico
 const world = createWorld(scene);
-
-// Instancia o jogador
-const player = new Player(scene, uiScene, uiCamera, world);
 
 // Cria um array com as cenas
 const scenes = [scene, weaponScene];
 
 // Dispara ao clicar na tela
 let salazar;
+let player;
 let inGameMenu = true;
 
 window.addEventListener('click', () => {
@@ -69,7 +72,9 @@ export function animate(time) {
   TWEEN.update(time); // Atualiza as animações Tween
 
   // Atualiza o monitor de desempenho
-  stats.update();
+  if (monitoringFPS){
+    stats.update();
+  }
 
   // Movimentação com WASD
   handleKeyboardInput(camera);
@@ -153,7 +158,13 @@ async function loadGame() {
 
 // Inicia o primeiro round
 function startGame() { 
+  // Instancia o jogador
+  player = new Player(scene, uiScene, uiCamera, world);
+
+  // Inicia o primeiro round
   kitties = startRound(kitties, scenes, world, camera, round);  
+
+  // Toca a música de fundo
   playBackgroundMusic();
 
   animate();
