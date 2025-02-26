@@ -1,5 +1,6 @@
 // bombKitties.js
 
+import { camera } from './controls.js';
 import { HelloKitty } from './kitties.js';
 import { models } from './loadModels.js';
 import { playBombKittyVoiceLine } from './audio.js';
@@ -7,12 +8,14 @@ import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
 
 export class BombKitty extends HelloKitty {
-    constructor(scene, world, player, size = 5, life = 5, speed = 7) {
+    constructor(scene, world, player, size = 5, life = 8, speed = 10) {
         super(scene, world, player, size, life, speed);
 
         this.bombTimer = 70; // 7 segundos
         this.explosionFadeout = 3000; // 3 segundos de animação
         this.isExploding = false;
+        this.lastDamageTime = 0; // Inicializa o tempo do último dano
+        this.damageCooldown = 500; // Tempo de espera entre danos (em milissegundos)
     }
 
     init() {
@@ -45,23 +48,35 @@ export class BombKitty extends HelloKitty {
         this.scene.add(enemyGroup);
     }
 
-    // Método sobrescrito para lógica adicional ou modificada
-    updateMovement(player) {
-        if (!this.isDead && !this.isExploding) { 
-            this.bombTimer -= 0.1;
+    // Lógica de movimentação da bomb kitty
+    updateMovement(camera, player) {
+        if (!this.body || this.isDead) return;
     
+        const cameraPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
+        const enemyPos = this.body.position;
+        const distanceToCamera = cameraPos.distanceTo(enemyPos);
+        const minDistance = 10;
+        const currentTime = Date.now();
+    
+        if (!this.isExploding) { 
+            this.bombTimer -= 0.1;
+            
             if (this.bombTimer <= 0) {
+                this.isExploding = true;
                 playBombKittyVoiceLine();
-                this.isExploding = true;  // Impede novas execuções
                 this.explode();
     
-                setTimeout(() => {
-                    this.isExploding = false;  // Libera para próxima chamada após a explosão
-                }, this.explosionFadeout);
+                if (distanceToCamera < minDistance && currentTime - this.lastDamageTime > this.damageCooldown) {
+                    player.decreaseLife(15);
+                    this.lastDamageTime = Date.now(); // Atualiza o cooldown corretamente
+                }
+
+                this.isDead = true; // Remove a bomb kitty após a explosão
             }
         }
-        super.updateMovement(player);
-    }    
+    
+        super.updateMovement(camera, player);
+    }
 
     // Função chamada quando a BombKitty explode
     explode() {        
