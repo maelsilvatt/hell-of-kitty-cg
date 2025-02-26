@@ -4,7 +4,7 @@ import { showCredits } from './gameProgress.js';
 import * as THREE from 'three';
 
 export class Salazar {
-    constructor(scene, world, camera, size = 50, life = 100, speed = 7) {
+    constructor(scene, world, camera, size = 50, life = 200, speed = 7) {
         this.scene = scene;
         this.world = world;
         this.camera = camera;
@@ -18,6 +18,8 @@ export class Salazar {
         this.salazar_fire = null;
         this.lifeBar = null;
         this.body = null;
+        this.lastDamageTime = 0; // Inicializa o tempo do último dano
+        this.damageCooldown = 1000; // Tempo de espera entre danos (em milissegundos)
 
         // DEBUG
         this.debugCube = null; 
@@ -78,7 +80,7 @@ export class Salazar {
         });
 
         this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial);    
-        const lifePercentage = this.life / 100;
+        const lifePercentage = this.life / 200;
         this.lifeBar.scale.x = lifePercentage;  
 
         // DEBUG
@@ -147,23 +149,23 @@ export class Salazar {
     }
 
     // Atualiza a movimentação do Salazar
-    updateMovement(player) {
-        if (!player || !this.body || !this.salazar || this.isDead) return;
+    updateMovement(camera, player) {
+        if (!camera || !this.body || !this.salazar || this.isDead) return;
     
-        const playerPos = new CANNON.Vec3(player.position.x, player.position.y, player.position.z);
+        const cameraPos = new CANNON.Vec3(camera.position.x, camera.position.y, camera.position.z);
         const enemyPos = this.body.position;
-        const distanceToPlayer = playerPos.distanceTo(enemyPos);
+        const distanceToCamera = cameraPos.distanceTo(enemyPos);
         const minDistance = 2;
     
         let direction = new CANNON.Vec3();
     
         // Lógica de movimento mais robusta
-        if (distanceToPlayer > minDistance) {
-            // Vai atrás do jogador se a distância for maior que o mínimo
-            direction.set(playerPos.x - enemyPos.x, 0, playerPos.z - enemyPos.z);
-        } else if (distanceToPlayer < minDistance) {
-            // Afasta-se do jogador se estiver muito perto
-            direction.set(enemyPos.x - playerPos.x, 0, enemyPos.z - playerPos.z);
+        if (distanceToCamera > minDistance) {
+            // Vai atrás da câmera se a distância for maior que o mínimo
+            direction.set(cameraPos.x - enemyPos.x, 0, cameraPos.z - enemyPos.z);
+        } else if (distanceToCamera < minDistance) {
+            // Afasta-se da câmera se estiver muito perto
+            direction.set(enemyPos.x - cameraPos.x, 0, enemyPos.z - cameraPos.z);
         }
     
         // Normaliza a direção para garantir que o movimento seja consistente
@@ -173,7 +175,7 @@ export class Salazar {
         let forceMagnitude = this.body.mass * this.speed;
     
         // Se a distância for muito pequena, aplicar um valor mínimo de força
-        if (distanceToPlayer < minDistance && forceMagnitude < 5) {
+        if (distanceToCamera < minDistance && forceMagnitude < 5) {
             forceMagnitude = 20;  // Define um valor mínimo para garantir o movimento
         }
     
@@ -194,7 +196,7 @@ export class Salazar {
             this.body.position.z
         );
 
-        // Faz o Salazar sempre olhar para o jogador
+        // Faz o Salazar sempre olhar para a câmera
         this.salazar.lookAt(this.camera.position);
 
         // Criamos deslocamentos relativos em um espaço local (esquerda e direita)
@@ -213,22 +215,22 @@ export class Salazar {
         this.handRight.rotation.copy(this.salazar.rotation);
         this.handLeft.rotation.copy(this.salazar.rotation);
 
-        // Faz as mãos olharem para o jogador
+        // Faz as mãos olharem para a câmera
         this.handRight.lookAt(this.camera.position);
         this.handLeft.lookAt(this.camera.position);
 
         // Dispara o foguinho aleatoriamente
-        if (Math.random() < 0.01) {
-            this.fireAtPlayer(player);            
+        if (Math.random() < 0.015) {
+            this.fireAtPlayer(camera, player);            
         }
 
-        // Ajustar a barra de vida para olhar para o jogador
+        // Ajustar a barra de vida para olhar para a câmera
         this.lifeBar.lookAt(this.camera.position);
         this.lifeBar.position.set(this.salazar.position.x, this.salazar.position.y + 0.7 *  this.size, this.salazar.position.z);
-    }     
+    }
 
     // Função responsável pelo ataques de Salazar contra o jogador
-    fireAtPlayer(camera) {
+    fireAtPlayer(camera, player) {
         if (!this.salazar || !this.salazar_fire || !camera) return;
 
         // Toca o efeito sonoro
@@ -245,7 +247,7 @@ export class Salazar {
         const hands_size = this.size / 2.2;
         const fireBody = new CANNON.Body({
             mass: 1,
-            shape: new CANNON.Sphere(hands_size / 2),
+            shape: new CANNON.Sphere(hands_size / 6),
             material: new CANNON.Material({ friction: 0, restitution: 0.2 })
         });
     
@@ -287,6 +289,17 @@ export class Salazar {
                 ).normalize());
 
                 fireball.lookAt(futurePosition);
+
+                // Verifica a distância entre o foguinho e o jogador
+                const cameraPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
+                const distanceToCamera = cameraPos.distanceTo(fireball.position);
+                const minDistance = 10;  // Distância mínima para causar dano    
+
+                if (distanceToCamera < minDistance && currentTime - this.lastDamageTime > this.damageCooldown) {
+                    player.decreaseLife(5);  
+                    this.lastDamageTime = Date.now(); // Atualiza o cooldown corretamente                  
+                }
+
                 requestAnimationFrame(updateFireball);
             }
         };
@@ -339,14 +352,14 @@ export class Salazar {
 }
 
 // Função para atualizar o Salazar no jogo
-export function updateSalazar(salazar, scene, camera){
+export function updateSalazar(player, salazar, scene, camera){
     if (salazar) {
         // Atualiza o movimento da kitty
         if (!salazar.isDead){
-            salazar.updateMovement(camera);
+            salazar.updateMovement(camera, player);
 
             // Toca um som aleatoriamente
-            if (Math.random() < 0.015) {
+            if (Math.random() < 0.0115) {
                 playSalazarVoiceLine();
             }
         }

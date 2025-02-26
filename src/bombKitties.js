@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
 
 export class BombKitty extends HelloKitty {
-    constructor(scene, world, player, size = 5, life = 8, speed = 10) {
+    constructor(scene, world, player, size = 5, life = 12, speed = 13) {
         super(scene, world, player, size, life, speed);
 
         this.bombTimer = 70; // 7 segundos
@@ -55,7 +55,7 @@ export class BombKitty extends HelloKitty {
         const cameraPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
         const enemyPos = this.body.position;
         const distanceToCamera = cameraPos.distanceTo(enemyPos);
-        const minDistance = 10;
+        const minDistance = 25;
         const currentTime = Date.now();
     
         if (!this.isExploding) { 

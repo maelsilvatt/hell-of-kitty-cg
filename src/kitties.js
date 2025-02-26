@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { models } from './loadModels.js';
 
 export class HelloKitty {
-    constructor(scene, world, player, size = 5, life = 5, speed = 7) {
+    constructor(scene, world, player, size = 5, life = 8, speed = 7) {
         this.scene = scene;
         this.world = world;
         this.player = player;
@@ -16,7 +16,7 @@ export class HelloKitty {
         this.lifeBar = null;
         this.body = null;
         this.lastDamageTime = 0; // Inicializa o tempo do último dano
-        this.damageCooldown = 500; // Tempo de espera entre danos (em milissegundos)
+        this.damageCooldown = 1000; // Tempo de espera entre danos (em milissegundos)
 
         // DEBUG
         this.debugCube = null; 

@@ -89,7 +89,7 @@ export function animate(time) {
   updateKitties(player, kitties, scene, camera);
 
   // Atualiza o Salazar
-  updateSalazar(salazar, scene, camera);
+  updateSalazar(player, salazar, scene, camera);
 
   // Verifica se o round atual foi concluído
   if (roundInProgress && kitties.every(kitty => kitty.life < 1)) {
