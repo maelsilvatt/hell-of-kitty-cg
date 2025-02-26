@@ -3,7 +3,7 @@ import { playSalazarVoiceLine, playSalazarGunshotSound } from './audio.js';
 import * as THREE from 'three';
 
 export class Salazar {
-    constructor(scene, world, camera, size = 50, life = 200, speed = 7) {
+    constructor(scene, world, camera, size = 50, life = 100, speed = 7) {
         this.scene = scene;
         this.world = world;
         this.camera = camera;

@@ -3,6 +3,13 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
+// Criar uma câmera ortográfica para a interface (HUD)
+const aspect = window.innerWidth / window.innerHeight;
+export const uiCamera = new THREE.OrthographicCamera(
+    -aspect, aspect, 1, -1, 0.1, 10
+);
+export const uiScene = new THREE.Scene();
+
 export class Player {
     constructor(scene, uiScene, uiCamera, world, life = 100) {
         this.scene = scene;
@@ -13,6 +20,8 @@ export class Player {
         this.isDead = false;
         this.lifeBar = null;
         this.body = null;
+        this.points = 0;
+        this.scoreText = null;
 
         // DEBUG
         this.debugCube = null; 
@@ -26,6 +35,9 @@ export class Player {
 
         // Cria a barra de vida
         this.createLifeBar();
+
+        // Cria o score de pontos
+        this.createScoreIndicator()
     }    
 
     // Cria o corpo físico do jogador
@@ -94,6 +106,30 @@ export class Player {
             camera.position.y - this.size / 2,
             camera.position.z
         );
+    }
+
+    createScoreIndicator() {
+        this.scoreElement = document.createElement('div');
+        this.scoreElement.style.position = 'absolute';
+        this.scoreElement.style.top = '10px';
+        this.scoreElement.style.left = '10px';
+        this.scoreElement.style.color = 'white';
+        this.scoreElement.style.fontSize = '20px';
+        this.scoreElement.style.fontFamily = 'Arial, sans-serif';
+        this.scoreElement.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        this.scoreElement.style.padding = '5px 10px';
+        this.scoreElement.innerText = `Score: ${this.points}`;
+    
+        document.body.appendChild(this.scoreElement);
+    }
+    
+    // Método para atualizar a pontuação
+    increasePoints(newPoints) {
+        this.points += newPoints;
+    
+        if (this.scoreElement) {
+            this.scoreElement.innerText = `Score: ${this.points}`;
+        }
     }
 
     // DEBUG

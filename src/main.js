@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import Stats from 'stats.js';
 import TWEEN from '@tweenjs/tween.js';
-import { camera, handleGamepadInput, handleKeyboardInput } from './controls.js';
+import { camera, setupControls, handleGamepadInput, handleKeyboardInput } from './controls.js';
 import { scene, createWorld } from './level_design.js';
 import { updateKitties } from './kitties.js';
 import { playBackgroundMusic } from './audio.js';
-import { Player } from './player_stats.js'
+import { Player, uiCamera, uiScene } from './player_stats.js'
 import { weaponScene, createWeapon, shoot } from './weapons.js';
 import { isFinalBossRound, isFinalBossIntroOn, startRound } from './gameProgress.js';
 import { spawnSalazar, updateSalazar } from './salazar.js';
@@ -27,12 +27,7 @@ document.body.appendChild(stats.dom);
 // Criação do mundo físico
 const world = createWorld(scene);
 
-// Criar uma câmera ortográfica para a interface (HUD)
-const aspect = window.innerWidth / window.innerHeight;
-const uiCamera = new THREE.OrthographicCamera(
-    -aspect, aspect, 1, -1, 0.1, 10
-);
-const uiScene = new THREE.Scene();
+// Instancia o jogador
 const player = new Player(scene, uiScene, uiCamera, world);
 
 // Cria um array com as cenas
@@ -40,11 +35,12 @@ const scenes = [scene, weaponScene];
 
 // Dispara ao clicar na tela
 let salazar;
+let inGameMenu = true;
 
 window.addEventListener('click', () => {
   // Bloqueira os tiros se estiver em cutscene
-  if ( !isFinalBossIntroOn ){
-    shoot(kitties, world, scene, camera, salazar);
+  if ( !isFinalBossIntroOn && !inGameMenu){
+    shoot(player, kitties, world, scene, camera, salazar);
   }
 });
 
@@ -60,7 +56,7 @@ playButton.addEventListener('click', () => {
   round = 1;
   roundInProgress = true;
   
-loadGame();
+  loadGame();
 });
 
 // Função do loop de animação
@@ -143,6 +139,10 @@ async function loadGame() {
     // Agora que os modelos estão carregados, cria a arma
     createWeapon(weaponScene);
 
+    // Inicializa os controles    
+    inGameMenu = false;
+    setupControls(camera);
+
     // Só inicia o jogo agora, após garantir que os modelos estão carregados
     startGame();
 
@@ -153,7 +153,7 @@ async function loadGame() {
 
 // Inicia o primeiro round
 function startGame() { 
-  kitties = startRound(kitties, scenes, world, camera, round);
+  kitties = startRound(kitties, scenes, world, camera, round);  
   playBackgroundMusic();
 
   animate();

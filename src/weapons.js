@@ -32,7 +32,7 @@ export async function createWeapon(weaponScene){
     weaponScene.add(gunMesh); // Adiciona a arma na cena separada
 }
 
-export function shoot(kitties, world, scene, camera, salazar = null){
+export function shoot(player, kitties, world, scene, camera, salazar = null){
     playGunshotSound();
 
     // Cria o projétil
@@ -99,13 +99,15 @@ export function shoot(kitties, world, scene, camera, salazar = null){
 
         if (salazar && collidedWith === salazar.body){
             salazar.decreaseLife(1);
-            removeProjectile();            
+            removeProjectile(); 
+            player.increasePoints(20);           
         }
 
         for (const kitty of kitties) {
             if (collidedWith === kitty.body) {
                 kitty.decreaseLife(1);
                 removeProjectile();
+                player.increasePoints(10);           
                 break;
             }
         }

@@ -12,7 +12,6 @@ export let yaw = 0;
 
 // Configurações de câmera
 export const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-setupControls(camera);
 camera.position.set(0, 5, 20);
 
 export function setupControls(camera) {
