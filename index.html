@@ -1,20 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>Hell-of Kitty</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-    canvas {
-      display: block;
-    }
-  </style>
+  <link rel="stylesheet" href="menu-style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Menu que aparecerá na leteral -->
+  <div id="sidebar">
+    <div id="title-game">
+      <h1> 
+        <strong>Hell</strong>-of Kitty 
+      </h1>
+    </div>
+
+    <div id="options-box">
+      <button class="botao-menu" id="playButton"> Jogar </button>
+      <button class="botao-menu" id="settingsButton"> Sensibilidade do Mouse </button>
+      <button class="botao-menu" id="creditsButton"> Créditos </button>
+      <button class="botao-menu" id="exitButton"> Sair </button>
+    </div>
+  </div>
+
+  <!-- Script principal do jogo -->
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

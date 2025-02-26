@@ -1,10 +1,10 @@
 import * as CANNON from 'cannon-es';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { playKittyVoiceLine } from './audio.js';;
 import * as THREE from 'three';
+import { models } from './loadModels.js';
 
 export class HelloKitty {
-    constructor(scene, world, player, size = 5, life = 5, speed = 7) {
+    constructor(scene, world, player, size = 5, life = 8, speed = 7) {
         this.scene = scene;
         this.world = world;
         this.player = player;
@@ -15,41 +15,42 @@ export class HelloKitty {
         this.helloKitty = null;
         this.lifeBar = null;
         this.body = null;
+        this.lastDamageTime = 0; // Inicializa o tempo do último dano
+        this.damageCooldown = 1000; // Tempo de espera entre danos (em milissegundos)
 
         // DEBUG
         this.debugCube = null; 
-
-        this.init();
     }
 
     init() {
         // Criar o corpo físico
         this.createPhysicsBody();
+                    
+        if (!models.helloKitty) {
+            console.error("❌ Modelo Hello Kitty ainda não carregado!");
+            return;
+        }
     
-        const loader = new GLTFLoader();
-        loader.load('models/hello kitty/scene.gltf', (gltf) => {
-            this.helloKitty = gltf.scene;
-            this.helloKitty.scale.set(this.size, this.size, this.size); 
-            
-            // Criar barra de vida
-            const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 0.2);
-            this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x00ff00, 
-                side: THREE.DoubleSide
-            });
+        this.helloKitty = models.helloKitty.clone();
         
-            this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial); 
-            const lifePercentage = this.life / 5;
-            this.lifeBar.scale.x = lifePercentage;       
-
-            // Criar um grupo para o inimigo e a barra de vida
-            const enemyGroup = new THREE.Group();
-            enemyGroup.add(this.helloKitty);
-            enemyGroup.add(this.lifeBar);
-            this.scene.add(enemyGroup)
-        }, undefined, (error) => {
-            console.error('Erro ao carregar modelo:', error);
+        this.helloKitty.scale.set(this.size, this.size, this.size);            
+        
+        // Criar barra de vida
+        const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 0.2);
+        this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x00ff00, 
+            side: THREE.DoubleSide
         });
+    
+        this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial); 
+        const lifePercentage = this.life / 5;
+        this.lifeBar.scale.x = lifePercentage;       
+
+        // Criar um grupo para o inimigo e a barra de vida
+        const enemyGroup = new THREE.Group();
+        enemyGroup.add(this.helloKitty);
+        enemyGroup.add(this.lifeBar);
+        this.scene.add(enemyGroup);
     }    
 
     createPhysicsBody() {
@@ -106,23 +107,23 @@ export class HelloKitty {
         }
     }
 
-    updateMovement(player) {
-        if (!player || !this.body || !this.helloKitty || this.isDead) return;
+    updateMovement(camera, player) {
+        if (!camera || !this.body || !this.helloKitty || this.isDead) return;
     
-        const playerPos = new CANNON.Vec3(player.position.x, player.position.y, player.position.z);
+        const cameraPos = new CANNON.Vec3(camera.position.x, camera.position.y, camera.position.z);
         const enemyPos = this.body.position;
-        const distanceToPlayer = playerPos.distanceTo(enemyPos);
+        const distanceToCamera = cameraPos.distanceTo(enemyPos);
         const minDistance = 2;
     
         let direction = new CANNON.Vec3();
     
         // Lógica de movimento mais robusta
-        if (distanceToPlayer > minDistance) {
-            // Vai atrás do jogador se a distância for maior que o mínimo
-            direction.set(playerPos.x - enemyPos.x, 0, playerPos.z - enemyPos.z);
-        } else if (distanceToPlayer < minDistance) {
-            // Afasta-se do jogador se estiver muito perto
-            direction.set(enemyPos.x - playerPos.x, 0, enemyPos.z - playerPos.z);
+        if (distanceToCamera > minDistance) {
+            // Vai atrás da câmera se a distância for maior que o mínimo
+            direction.set(cameraPos.x - enemyPos.x, 0, cameraPos.z - enemyPos.z);
+        } else if (distanceToCamera < minDistance) {
+            // Afasta-se da câmera se estiver muito perto
+            direction.set(enemyPos.x - cameraPos.x, 0, enemyPos.z - cameraPos.z);
         }
     
         // Normaliza a direção para garantir que o movimento seja consistente
@@ -132,10 +133,17 @@ export class HelloKitty {
         let forceMagnitude = this.body.mass * this.speed;
     
         // Se a distância for muito pequena, aplicar um valor mínimo de força
-        if (distanceToPlayer < minDistance && forceMagnitude < 5) {
+        if (distanceToCamera < minDistance && forceMagnitude < 5) {
             forceMagnitude = 20;  // Define um valor mínimo para garantir o movimento
+            
         }
-    
+
+        // Verifica se a kitty tocou no jogador e se o cooldown já passou
+        const currentTime = Date.now();
+        if (distanceToCamera < minDistance && currentTime - this.lastDamageTime > this.damageCooldown) {
+            player.decreaseLife(5); // Diminui em 5 pontos a vida do jogador
+            this.lastDamageTime = currentTime; // Atualiza o tempo do último dano
+        }
         // Aplique a força considerando a direção e a intensidade
         const force = new CANNON.Vec3(
             direction.x * forceMagnitude,
@@ -146,14 +154,14 @@ export class HelloKitty {
         // Aplica a força na física
         this.body.applyForce(force, this.body.position);
     
-        // Ajuste a rotação da boneca para olhar para o player
+        // Ajuste a rotação da boneca para olhar para a câmera
         const kittyPos = this.helloKitty.position.clone();
-        const playerPosClone = player.position.clone();
+        const cameraPosClone = camera.position.clone();
         kittyPos.y = 0; // Ignorar a altura para rotação
-        playerPosClone.y = 0;
+        cameraPosClone.y = 0;
     
         const lookDirection = new THREE.Vector3();
-        lookDirection.subVectors(playerPosClone, kittyPos).normalize();
+        lookDirection.subVectors(cameraPosClone, kittyPos).normalize();
         let angle = Math.atan2(lookDirection.x, lookDirection.z) - Math.PI / 2;
         this.helloKitty.rotation.set(0, angle, 0);
     
@@ -164,10 +172,10 @@ export class HelloKitty {
             this.body.position.z
         );
     
-        // Ajustar a barra de vida para olhar para o player
-        this.lifeBar.lookAt(this.player.position);
+        // Ajustar a barra de vida para olhar para a câmera
+        this.lifeBar.lookAt(camera.position);
         this.lifeBar.position.set(this.helloKitty.position.x, this.helloKitty.position.y + this.size, this.helloKitty.position.z);
-    }     
+    }
 
     // DEBUG
     initKittyDebugCube(scene){
@@ -202,15 +210,16 @@ export class HelloKitty {
 // Função para adicionar uma Hello Kitty
 export function addKitties(kitties, scene, world, camera, size = 8, life = 5, speed = 8) {
   const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
+  newKitty.init();
   kitties.push(newKitty);
 }
 
 // Função para atualizar as kitties no jogo
-export function updateKitties(kitties, scene, camera){
+export function updateKitties(player, kitties, scene, camera){
     for (const kitty of kitties) {
         // Atualiza o movimento da kitty
         if (!kitty.isDead){
-            kitty.updateMovement(camera);
+            kitty.updateMovement(camera, player);
 
             // Toca um som aleatoriamente
             if (Math.random() < 0.001) {

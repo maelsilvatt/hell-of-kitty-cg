@@ -1,0 +1,116 @@
+:root {
+    /* Estilo com relação ao tipo da fonte */
+    --FONTE-KAWAII: "Cherry Bomb One", serif;
+
+    /* Estilo com relação as cores utilizadas na página */
+    --VERMELHO-HELL: #ff0000;
+    --ROSA-PRINCIPAL: #FF1493;
+    --BRANCO: #FFFFFF;
+    --PRETO: #000000;
+
+}
+
+body {
+    margin: 0px;
+    border: 0px;
+}
+
+/* Barra Inicial */
+#sidebar {
+    /* Estilo relacionado ao formato e aparência do elemento */
+    width: 25vw; /* Largura de 1/4 da largura página */
+    height: 100%; /* Altura de 100% da altura página */
+    border-radius: 0px 10px 10px 0px;
+    padding: 10px;
+    background: var(--ROSA-PRINCIPAL);
+
+    /* Estilo relacionado a forma como a sidebar está na página */
+    position: fixed;
+    z-index: 9999; /* A camada mais acima da página */
+
+    /* Estilo relacionado a distribuição dos elementos dentro da sidebar*/
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+    gap: 5%;
+
+    background-image: radial-gradient(#ffffff 2px, transparent 2px);
+    background-size: 32px 32px;
+    background-color: var(--ROSA-PRINCIPAL);
+}
+
+#title-game {
+    /* Estilo relacionado ao formato e aparência do elemento */
+    width: 90%; /* Largura de 1/4 da largura página */
+    height: 40%; /* Altura de 100% da altura página */
+    padding: 10px;
+
+    /* Estilo relacionado a distribuição dos elementos dentro da sidebar*/
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    text-align: center;
+
+    /* Estilo com relação ao texto presente */
+    font-family: var(--FONTE-KAWAII);
+    -webkit-text-stroke: 2px var(--PRETO);
+    font-size: 35px;
+    color: var(--BRANCO);
+}
+
+#title-game strong {
+    color: var(--VERMELHO-HELL);
+}
+
+#options-box {
+    /* Estilo relacionado ao formato e aparência do elemento */
+    width: 85%; /* Largura de 1/4 da largura página */
+    height: 40%; /* Altura de 100% da altura página */
+    padding: 3px;
+    border-radius: 10px;
+    background: var(--BRANCO);
+
+    /* Estilo relacionado a distribuição dos elementos dentro da sidebar*/
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    text-align: center;
+}
+
+.botao-menu {
+    /* Estilo relacionado ao formato e aparência do elemento */
+    width: 98%; /* Largura de 1/4 da largura página */
+    height: 25%; /* Altura de 100% da altura página */
+    border: none;
+    border-radius: 1px;
+    background: var(--BRANCO);
+
+    /* Estilo relacionado a distribuição dos elementos dentro da sidebar*/
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    text-align: center;
+
+    /* Estilo com relação ao texto presente */
+    font-family: var(--FONTE-KAWAII);
+    font-size: 22px;
+    color: var(--ROSA-PRINCIPAL);
+}
+
+.botao-menu:hover {
+    color: var(--VERMELHO-HELL)
+}
+
+/* Classe que move a barra para fora da tela (slide para a esquerda) */
+#sidebar.slide-out {
+    transform: translateX(-30vw);
+}
+
+/* Canvas do Three.js fica por baixo do menu */
+canvas {
+    display: block;
+}

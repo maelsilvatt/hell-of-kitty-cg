@@ -4,6 +4,10 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+
+// Configuraçãso da cena
+export const scene = new THREE.Scene();
+
 export function setupLighting(scene) {
     // Iluminação
     const ambientLight = new THREE.AmbientLight(0xffaacc, 0.8);
