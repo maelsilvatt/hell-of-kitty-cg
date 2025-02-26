@@ -1,25 +1,21 @@
 import * as THREE from 'three';
 import Stats from 'stats.js';
-import { setupControls, handleGamepadInput, handleKeyboardInput } from './controls.js';
-import { createWorld } from './level_design.js';
+import TWEEN from '@tweenjs/tween.js';
+import { camera, handleGamepadInput, handleKeyboardInput } from './controls.js';
+import { scene, createWorld } from './level_design.js';
 import { updateKitties } from './kitties.js';
 import { playBackgroundMusic } from './audio.js';
 import { Player } from './player_stats.js'
-import { createWeapon, shoot } from './weapons.js';
+import { weaponScene, createWeapon, shoot } from './weapons.js';
 import { isFinalBossRound, isFinalBossIntroOn, startRound } from './gameProgress.js';
 import { spawnSalazar, updateSalazar } from './salazar.js';
 
 // Capturando os elementos do INDEX.HTML para manipular o comportamento do Menu
 const sideBar = document.getElementById('sidebar');
 const playButton = document.getElementById('playButton');
+import { loadAllModels } from './loadModels.js';
 
-// Configuraçãso da cena
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-setupControls(camera);
-camera.position.set(0, 5, 20);
-
+// Inicialização
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -31,7 +27,6 @@ document.body.appendChild(stats.dom);
 // Criação do mundo físico
 const world = createWorld(scene);
 
-// Criação do jogador
 // Criar uma câmera ortográfica para a interface (HUD)
 const aspect = window.innerWidth / window.innerHeight;
 const uiCamera = new THREE.OrthographicCamera(
@@ -40,17 +35,10 @@ const uiCamera = new THREE.OrthographicCamera(
 const uiScene = new THREE.Scene();
 const player = new Player(scene, uiScene, uiCamera, world);
 
-// Carrega a arma na cena
-const weaponScene = new THREE.Scene(); // Cena exclusiva para a arma
-createWeapon(weaponScene);
-
 // Cria um array com as cenas
 const scenes = [scene, weaponScene];
 
-// Variável para garantir que a música toque apenas uma vez (configuração de debug)
-let musicPlayed = true; 
-
-// Dispara ao clicar na tela e toca a música de fundo (uma vez)
+// Dispara ao clicar na tela
 let salazar;
 
 window.addEventListener('click', () => {
@@ -58,14 +46,9 @@ window.addEventListener('click', () => {
   if ( !isFinalBossIntroOn ){
     shoot(kitties, world, scene, camera, salazar);
   }
-
-  if (!musicPlayed) {
-    playBackgroundMusic();
-    musicPlayed = true;
-  }
 });
 
-// Inicia o jogo
+// Carrega assets do jogo
 let round = 1;
 let roundInProgress = false;
 let kitties = [];
@@ -76,13 +59,20 @@ playButton.addEventListener('click', () => {
 
   round = 1;
   roundInProgress = true;
-  kitties = startRound(kitties, scenes, world, camera, round);
+  
+loadGame();
 });
 
-// Loop de animação
-function animate() {
+// Função do loop de animação
+export function animate(time) {
+  // Se a intro do boss estiver ativa, o jogo pausa
+  if (isFinalBossIntroOn) return;
+
   requestAnimationFrame(animate);
   world.step(1 / 60);
+  TWEEN.update(time); // Atualiza as animações Tween
+
+  // Atualiza o monitor de desempenho
   stats.update();
 
   // Movimentação com WASD
@@ -112,22 +102,19 @@ function animate() {
     }, 2000);
 
     // Verifica se está no round de batalha final
-    if (isFinalBossRound){
-      salazar = spawnSalazar(scene, world, camera);
-      isFinalBossRound = false;
+    if (isFinalBossRound && !salazar){
+      salazar = spawnSalazar(scene, world, camera);      
     }
 
-    // Softlock no round 5 para não sobrecarregar o sistema
-    if (round > 1){
-      round = 1;
+    // Softlock no round 4 para não sobrecarregar o sistema
+    if (round > 5){
+      round = 5;
     }
   }
 
   // Renderiza todas as cenas
   render();
 }
-
-animate();
 
 // Renderiza as cenas do jogo
 function render() {
@@ -145,4 +132,29 @@ function render() {
   // Renderiza a HUD
   renderer.clearDepth();  
   renderer.render(uiScene, uiCamera);
+}
+
+// Carrega os recursos do jogo
+async function loadGame() {
+  try {
+    // Aguarda o carregamento de todos os modelos
+    await loadAllModels();    
+
+    // Agora que os modelos estão carregados, cria a arma
+    createWeapon(weaponScene);
+
+    // Só inicia o jogo agora, após garantir que os modelos estão carregados
+    startGame();
+
+  } catch (error) {
+    console.error('❌ Erro ao carregar os modelos:', error);
+  }
+}
+
+// Inicia o primeiro round
+function startGame() { 
+  kitties = startRound(kitties, scenes, world, camera, round);
+  playBackgroundMusic();
+
+  animate();
 }

@@ -1,7 +1,9 @@
 // gameProgress.js
 
 import { addKitties } from './kitties.js';
-import { playBackgroundMusic, playSansDialogueSound } from './audio.js';
+import { animate } from './main.js';
+import { addBombKitties } from './bombKitties.js';
+import { playSansDialogueSound } from './audio.js';
 import { blackoutScreen, showNextDialogue } from './utils.js';
 import { setupAmbientInfernal } from './level_design.js';
 
@@ -17,7 +19,8 @@ export function startRound(kitties, scenes, world, camera, round) {
           isFinalBossIntroOn = true;
           playfinalBossCutscene(scenes, world, camera);
           setTimeout(() => {
-              isFinalBossIntroOn = false;              
+              isFinalBossIntroOn = false;        
+              animate();      
             }, 24000);
           
           return kitties;
@@ -29,12 +32,15 @@ export function startRound(kitties, scenes, world, camera, round) {
         // Define a quantidade de inimigos com base no round (exemplo: round * 4)
         const numKitties = round * 4;
         for (let i = 0; i < numKitties; i++) {
-          addKitties(kitties, scenes[0], world, camera);
-    
-          // Inicializa o cubo de debug se necessário
-          // kitties[i].initKittyDebugCube(scene);
+          if (Math.random() < 0.3) {
+              // 30% de chance de ser um bombKitty
+              addBombKitties(kitties, scenes[0], world, camera);
+          } else {
+              // Caso contrário, é um kitty normal
+              addKitties(kitties, scenes[0], world, camera);
+          }
         }
-    
+      
         return kitties;
   }
 
@@ -49,9 +55,6 @@ function playfinalBossCutscene(scenes){
 
   // Toca o som do diálogo
   playSansDialogueSound(24);
-
-  // Inicia a música da boss fight
-  playBackgroundMusic('sound_effects/Undertale - Megalovania.mp3', 0.7);
 
   // Deixa a tela preta
   blackoutScreen();

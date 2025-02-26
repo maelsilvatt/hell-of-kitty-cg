@@ -3,11 +3,11 @@
 let backgroundMusic;
 
 // Função para carregar e tocar a música
-export function playBackgroundMusic(songPath, volume = 0.5) {
+export function playBackgroundMusic() {
     // Criação de um novo objeto de áudio
-    backgroundMusic = new Audio(songPath); 
+    backgroundMusic = new Audio('sound_effects/BABYMETAl.mp3'); 
     backgroundMusic.loop = true; 
-    backgroundMusic.volume = volume;
+    backgroundMusic.volume = 0.8;
 
     // Tocar a música
     backgroundMusic.play().catch(error => {
@@ -66,10 +66,42 @@ export function playKittyVoiceLine() {
     });
 }
 
+let isBombKittyVoicePlaying = false; // Variável para controlar se um som está em reprodução
 
+export function playBombKittyVoiceLine() {
+    if (isBombKittyVoicePlaying) return; // Impede que um novo som seja iniciado enquanto outro está tocando
+
+    // Cria uma nova instância do áudio com o som escolhido
+    const kittyVoiceLine = new Audio('sound_effects/explosion.mp3');
+    kittyVoiceLine.volume = 0.5; 
+
+    isBombKittyVoicePlaying = true;
+
+    // Quando o som termina, libera para o próximo
+    kittyVoiceLine.onended = () => {
+        isBombKittyVoicePlaying = false;
+    };
+
+    // Toca o som e trata erros
+    kittyVoiceLine.play().catch(error => {
+        console.error('Erro ao tentar reproduzir o som da bomb kitty:', error);
+        isBombKittyVoicePlaying = false;
+    });
+}
 
 export function playSalazarVoiceLine(){
     
+}
+
+// Função para carregar e tocar o efeito de tiro
+export function playSalazarGunshotSound() {
+    const gunshotSound = new Audio('sound_effects/salazar shot.mp3');  // Cria uma nova instância do áudio a cada chamada
+    gunshotSound.volume = 0.3;  // Ajuste o volume conforme necessário
+
+    // Toca o som de tiro imediatamente
+    gunshotSound.play().catch(error => {
+        console.error('Erro ao tentar reproduzir o som de tiro:', error);
+    });
 }
 
 let isVoiceLinePlaying = false; // Variável para controlar se um som está em reprodução

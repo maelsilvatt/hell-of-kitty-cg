@@ -4,11 +4,16 @@ import { isFinalBossIntroOn } from './gameProgress.js';
 import { shoot } from './weapons.js';
 import * as THREE from 'three';
 
+// Configurações de teclado e mouse
 export const keys = { w: false, a: false, s: false, d: false };
 export let moveSpeed = 0.35;
 export let mouseSensitivity = 0.002;
 export let yaw = 0;
-let musicPlayed = false;
+
+// Configurações de câmera
+export const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+setupControls(camera);
+camera.position.set(0, 5, 20);
 
 export function setupControls(camera) {
     window.addEventListener('keydown', (event) => {

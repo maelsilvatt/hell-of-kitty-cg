@@ -1,7 +1,7 @@
 import * as CANNON from 'cannon-es';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { playKittyVoiceLine } from './audio.js';;
 import * as THREE from 'three';
+import { models } from './loadModels.js';
 
 export class HelloKitty {
     constructor(scene, world, player, size = 5, life = 5, speed = 7) {
@@ -18,38 +18,37 @@ export class HelloKitty {
 
         // DEBUG
         this.debugCube = null; 
-
-        this.init();
     }
 
     init() {
         // Criar o corpo físico
         this.createPhysicsBody();
+                    
+        if (!models.helloKitty) {
+            console.error("❌ Modelo Hello Kitty ainda não carregado!");
+            return;
+        }
     
-        const loader = new GLTFLoader();
-        loader.load('models/hello kitty/scene.gltf', (gltf) => {
-            this.helloKitty = gltf.scene;
-            this.helloKitty.scale.set(this.size, this.size, this.size); 
-            
-            // Criar barra de vida
-            const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 0.2);
-            this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x00ff00, 
-                side: THREE.DoubleSide
-            });
+        this.helloKitty = models.helloKitty.clone();
         
-            this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial); 
-            const lifePercentage = this.life / 5;
-            this.lifeBar.scale.x = lifePercentage;       
-
-            // Criar um grupo para o inimigo e a barra de vida
-            const enemyGroup = new THREE.Group();
-            enemyGroup.add(this.helloKitty);
-            enemyGroup.add(this.lifeBar);
-            this.scene.add(enemyGroup)
-        }, undefined, (error) => {
-            console.error('Erro ao carregar modelo:', error);
+        this.helloKitty.scale.set(this.size, this.size, this.size);            
+        
+        // Criar barra de vida
+        const lifeBarGeometry = new THREE.PlaneGeometry(2 * (this.size * 0.3), 0.2);
+        this.lifeBarMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x00ff00, 
+            side: THREE.DoubleSide
         });
+    
+        this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial); 
+        const lifePercentage = this.life / 5;
+        this.lifeBar.scale.x = lifePercentage;       
+
+        // Criar um grupo para o inimigo e a barra de vida
+        const enemyGroup = new THREE.Group();
+        enemyGroup.add(this.helloKitty);
+        enemyGroup.add(this.lifeBar);
+        this.scene.add(enemyGroup);
     }    
 
     createPhysicsBody() {
@@ -202,6 +201,7 @@ export class HelloKitty {
 // Função para adicionar uma Hello Kitty
 export function addKitties(kitties, scene, world, camera, size = 8, life = 5, speed = 8) {
   const newKitty = new HelloKitty(scene, world, camera, size, life, speed);
+  newKitty.init();
   kitties.push(newKitty);
 }
 

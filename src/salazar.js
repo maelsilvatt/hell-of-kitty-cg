@@ -1,5 +1,5 @@
 import * as CANNON from 'cannon-es';
-import { playSalazarVoiceLine } from './audio.js';
+import { playSalazarVoiceLine, playSalazarGunshotSound } from './audio.js';
 import * as THREE from 'three';
 
 export class Salazar {
@@ -215,7 +215,7 @@ export class Salazar {
 
         // Dispara o foguinho aleatoriamente
         if (Math.random() < 0.01) {
-            this.fireAtPlayer(player);
+            this.fireAtPlayer(player);            
         }
 
         // Ajustar a barra de vida para olhar para o jogador
@@ -226,6 +226,9 @@ export class Salazar {
     // Função responsável pelo ataques de Salazar contra o jogador
     fireAtPlayer(camera) {
         if (!this.salazar || !this.salazar_fire || !camera) return;
+
+        // Toca o efeito sonoro
+        playSalazarGunshotSound();
     
         // Cria um novo foguinho baseado no original
         const fireball = this.salazar_fire.clone();
