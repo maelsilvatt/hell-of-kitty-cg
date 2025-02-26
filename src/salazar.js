@@ -1,5 +1,6 @@
 import * as CANNON from 'cannon-es';
 import { playSalazarVoiceLine, playSalazarGunshotSound } from './audio.js';
+import { showCredits } from './gameProgress.js';
 import * as THREE from 'three';
 
 export class Salazar {
@@ -77,7 +78,7 @@ export class Salazar {
         });
 
         this.lifeBar = new THREE.Mesh(lifeBarGeometry, this.lifeBarMaterial);    
-        const lifePercentage = this.life / 200;
+        const lifePercentage = this.life / 100;
         this.lifeBar.scale.x = lifePercentage;  
 
         // DEBUG
@@ -128,6 +129,9 @@ export class Salazar {
             // Permitir que a boneca tombe naturalmente
             this.body.type = CANNON.Body.DYNAMIC;
             this.body.allowSleep = false; // Impede que ela congele
+
+            // Encerra o jogo
+            showCredits();
         }
 
         const lifePercentage = this.life / 200;

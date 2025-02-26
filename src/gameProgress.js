@@ -79,4 +79,56 @@ function playfinalBossCutscene(scenes){
   isFinalBossRound = true;
 }
 
+// Tela de créditos do jogo
+export function showCredits() {
+  // Força o pause do jogo
+  isFinalBossIntroOn = true;
+  
+  // Criar fundo preto
+  const creditsScreen = document.createElement('div');
+  creditsScreen.style.position = 'fixed';
+  creditsScreen.style.top = '0';
+  creditsScreen.style.left = '0';
+  creditsScreen.style.width = '100vw';
+  creditsScreen.style.height = '100vh';
+  creditsScreen.style.backgroundColor = 'black';
+  creditsScreen.style.display = 'flex';
+  creditsScreen.style.flexDirection = 'column';
+  creditsScreen.style.justifyContent = 'center';
+  creditsScreen.style.alignItems = 'center';
+  creditsScreen.style.color = 'white';
+  creditsScreen.style.fontFamily = '"Press Start 2P", Arial, sans-serif';
+  creditsScreen.style.textAlign = 'center';
+  creditsScreen.style.zIndex = '9999';
+
+  // Criar título "CRÉDITOS"
+  const titleElement = document.createElement('div');
+  titleElement.innerText = 'CRÉDITOS';
+  titleElement.style.fontSize = '30px';
+  titleElement.style.fontWeight = 'bold';
+  titleElement.style.marginBottom = '20px';
+
+  // Criar container para os créditos alinhados à esquerda
+  const creditsContainer = document.createElement('div');
+  creditsContainer.style.textAlign = 'left'; // Alinhar à esquerda
+  creditsContainer.style.fontSize = '20px';
+  creditsContainer.style.whiteSpace = 'pre-line'; // Mantém quebras de linha
+  creditsContainer.style.maxWidth = '80vw'; // Evita que fique muito espalhado
+  creditsContainer.style.lineHeight = '1.5';
+
+  // Criar texto dos créditos
+  creditsContainer.innerText = `
+Ismael Soares – Física e Sistemas de Colisão
+Ákyla de Aquino – Sistema de Rounds
+Gutemberg Brito – Pesquisa de Cenário e Elementos
+Anderson Ivanildo – Documentação e HUD
+  `;
+
+  // Adicionar elementos à tela
+  creditsScreen.appendChild(titleElement);
+  creditsScreen.appendChild(creditsContainer);
+  document.body.appendChild(creditsScreen);
+}
+
+
 export { isFinalBossIntroOn, isFinalBossRound }
