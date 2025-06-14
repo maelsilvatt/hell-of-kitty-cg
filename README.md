@@ -27,10 +27,6 @@ Seu destino: enfrentar o chefão final — **Salazar**, um professor flutuante d
 - 🔥 **Boss fight** com o professor da disciplina.
 - 🎵 **Música, HUD, física, partículas, cutscene**? Tudo incluso.
 
-<div align="center">
-  <img src="https://github.com/maelsilvatt/hell-of-kitty-cg/blob/main/images/gameplay.gif?raw=true" alt="Hell-of Kitty Demo" width="600"/>
-</div>
-
 ---
 
 ## 🌈 Ambientação
@@ -39,6 +35,12 @@ Seu destino: enfrentar o chefão final — **Salazar**, um professor flutuante d
 - 😺 **Estilo visual**: kawaii cor-de-rosa, mas com alma de DOOM.
 - 🎯 **Inspirações**:  
   `DOOM` + `COD Zombies` + `Hello Kitty` + devs sem limites
+
+## 🔥 Gameplay 
+
+<div align="center">
+  <img src="https://github.com/maelsilvatt/hell-of-kitty-cg/blob/main/images/gameplay.gif?raw=true" alt="Hell-of Kitty Demo" width="600"/>
+</div>
 
 ---
 
