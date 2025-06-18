@@ -1,149 +1,145 @@
-# 🎀 Hell-of Kitty
+# 🎀 Hell-of Kitty  
 
-> *Um FPS tão fofo quanto infernal. Prepare-se pra encarar o caos de lacinho rosa.*
+> *An FPS as cute as it is hellish. Brace yourself for pink-bow chaos.*  
 
-🧠 Projeto Final de **Computação Gráfica – 2024**  
-🎮 Desenvolvido por **Ismael S., Ákyla, Gutemberg e Anderson**
+🧠 Final Project for **Computer Graphics – 2024**  
+🎮 Developed by **Ismael S., Ákyla, Gutemberg, and Anderson**  
 
----
+---  
 
-## 🍭 Sobre o jogo
+## 🍭 About the Game  
 
-**Hell-of Kitty** é um FPS 3D onde você luta por sua vida contra hordas de **Hello Kitties possuídas** numa **ilha doce** psicodélica.
+**Hell-of Kitty** is a 3D FPS where you fight for your life against hordes of **possessed Hello Kitties** on a psychedelic **candy island**.  
 
-Seu arsenal: uma M4A1 Kawaii.  
-Seu desafio: sobreviver a rounds crescentes de caos.  
-Seu destino: enfrentar o chefão final — **Salazar**, um professor flutuante de lacinho rosa que taca **fogo rosa** com as mãos.
+Your arsenal: a **Kawaii M4A1**.  
+Your challenge: survive escalating rounds of chaos.  
+Your destiny: face the final boss—**Salazar**, a floating professor with a pink bow who shoots **pink fireballs** from his hands.  
 
----
+---  
 
-## 🧠 Mecânicas principais
+## 🧠 Core Mechanics  
 
-- 🌊 **Rounds infinitamente mais difíceis** (até o 5º — por misericórdia da GPU)
-- 💣 **Inimigas:**
-  - `Hello Kitty padrão`: corre e bate.
-  - `Bomb Kitty`: vem com **C4 nas costas** (sem tempo, irmão).
-- 💥 **Tiro na cabeça**? Claro.
-- 🔥 **Boss fight** com o professor da disciplina.
-- 🎵 **Música, HUD, física, partículas, cutscene**? Tudo incluso.
+- 🌊 **Endlessly harder rounds** (capped at Round 5—for your GPU’s mercy).  
+- 💣 **Enemies:**  
+  - `Basic Hello Kitty`: Runs and slaps.  
+  - `Bomb Kitty`: Carries a **C4 strapped to its back** (tick-tock, mate).  
+- 💥 **Headshots?** Obviously.  
+- 🔥 **Epic boss fight** against the course professor.  
+- 🎵 **Music, HUD, physics, particles, cutscenes?** All included.  
 
----
+---  
 
-## 🌈 Ambientação
+## 🌈 Setting  
 
-- 🍬 **Cenário**: "Candy Island" — um mapa estilo Fall Guys com muita cor, açúcar e más intenções.
-- 😺 **Estilo visual**: kawaii cor-de-rosa, mas com alma de DOOM.
-- 🎯 **Inspirações**:  
-  `DOOM` + `COD Zombies` + `Hello Kitty` + devs sem limites
+- 🍬 **Map**: *Candy Island*—a Fall Guys-esque world full of sugar, colors, and bad intentions.  
+- 😺 **Art style**: Kawaii pink, but with DOOM’s soul.  
+- 🎯 **Inspirations**:  
+  `DOOM` + `COD Zombies` + `Hello Kitty` + sleep-deprived devs.  
 
-## 🔥 Gameplay 
+## 🔥 Gameplay  
 
-<div align="center">
-  <img src="https://github.com/maelsilvatt/hell-of-kitty-cg/blob/main/images/gameplay.gif?raw=true" alt="Hell-of Kitty Demo" width="600"/>
-</div>
+<div align="center">  
+  <img src="https://github.com/maelsilvatt/hell-of-kitty-cg/blob/main/images/gameplay.gif?raw=true" alt="Hell-of Kitty Demo" width="600"/>  
+</div>  
 
----
+---  
 
-## 🔧 Tecnologias
+## 🔧 Tech Stack  
 
-| 💻 Stack        | 💬 Pra quê serve?                                     |
-|----------------|-------------------------------------------------------|
-| `Three.js`     | Motor gráfico 3D FPS                                  |
-| `Cannon.js`    | Física realista, colisões, impulsos e explosões       |
-| `TWEEN.js`     | Cutscenes, transições de câmera                       |
-| `Blender` / `Wings3D` | Modelagem dos personagens e... do Salazar 💅       |
-| `Figma`        | Design da HUD e menu                                  |
-| `Stats.js`     | Monitor de FPS (porque isso aqui explode GPUs fracas) |
+| 💻 Stack        | 💬 Purpose                                      |  
+|----------------|------------------------------------------------|  
+| `Three.js`     | 3D FPS engine                                  |  
+| `Cannon.js`    | Physics (collisions, explosions, ragdolls)     |  
+| `TWEEN.js`     | Cutscenes & camera transitions                 |  
+| `Blender` / `Wings3D` | Character models (and Salazar’s fabulous bow) |  
+| `Figma`        | HUD & menu design                              |  
+| `Stats.js`     | FPS monitor (because this melts weak GPUs)     |  
 
----
+---  
 
-## 👥 Time de desenvolvimento
+## 👥 Dev Team  
 
-| Nome       | Função                        |
-|------------|-------------------------------|
-| 🎯 Ismael  | Física & sistemas de colisão  |
-| 🔁 Ákyla   | Sistema de rounds             |
-| 🎨 Gutemberg | Pesquisa de cenários & visuais |
-| 🧾 Anderson | HUD & documentação            |
+| Name         | Role                          |  
+|--------------|-------------------------------|  
+| 🎯 Ismael    | Physics & collision systems   |  
+| 🔁 Ákyla     | Round system & enemy waves    |  
+| 🎨 Gutemberg | Environment & art direction   |  
+| 🧾 Anderson  | HUD & documentation           |  
 
----
+---  
 
-## 🗂️ Estrutura do projeto
+## 🗂️ Project Structure  
 
-```
+```  
+📁 models/           → 3D models (GLB/GLTF)  
+📁 sound_effects/    → SFX & soundtrack  
+📁 src/              → Modular JS code  
+│   ├── kitties.js         # Enemy AI  
+│   ├── salazar.js         # Floating demon professor  
+│   ├── weapons.js         # Guns & shooting mechanics  
+│   ├── controls.js        # Player input  
+│   └── ...etc  
+📄 index.html        → Main page  
+🎨 menu-style.css    → Cute main menu styling  
+```  
 
-📁 models/           → Modelos 3D (GLB / GLTF)
-📁 sound\_effects/    → Efeitos sonoros e trilha
-📁 src/              → Código JS modularizado
-│   ├── kitties.js         # Lógica dos inimigos
-│   ├── salazar.js         # Chefão voador do capeta
-│   ├── weapons.js         # Armas e sistema de tiro
-│   ├── controls.js        # Input do jogador
-│   └── ...etc
-📄 index.html        → Estrutura da página
-🎨 menu-style.css    → Menu principal com estilo fofo
+---  
 
-````
+## 🔥 Boss: Salazar  
 
----
+- Spawns in **Round 4**.  
+- Wields **magic gloves** that shoot **pink fire**.  
+- Floats around, laughing at your suffering.  
+- Literally based on the course professor.  
 
-## 🔥 Boss: Salazar
+---  
 
-- Surge no **4º round**
-- Tem **luvas mágicas** que lançam **fogo rosa**
-- Flutua pelo mapa, rindo da sua cara
-- Baseado (literalmente) no professor da disciplina
+## 🚧 Technical Challenges  
 
----
+- 🔄 Particles + physics + enemies = **chaos**.  
+- 🧠 Cutscenes without freezing gameplay.  
+- 🐱 Basic AI for the kitties.  
+- ⚙️ Performance with multiple animated GLB models.  
 
-## 🚧 Desafios técnicos
+---  
 
-- 🔄 Lidar com partículas + física + inimigos simultâneos = caos
-- 🧠 Cutscenes sem travar o gameplay
-- 🐱 Inteligência artificial básica pros kitties
-- ⚙️ Performance com múltiplos modelos GLB animados
+## 🎥 Gameplay Demo  
 
----
+> *“DOOM meets Hello Kitty on acid.”*  
+> —A traumatized player, 2024  
 
-## 🎥 Gameplay demo
+---  
 
-> “DOOM meets Hello Kitty on acid.”  
-> – Um jogador traumatizado, 2024
+## 🚀 How to Run Locally  
 
----
+1. Clone the repo:  
+```bash  
+git clone https://github.com/your-username/hell-of-kitty.git  
+cd hell-of-kitty  
+```  
 
-## 🚀 Como rodar localmente
+2. Start a local server:  
+```bash  
+npm install -g serve  
+serve .  
+```  
 
-1. Clone o projeto:
-```bash
-git clone https://github.com/seu-usuario/hell-of-kitty.git
-cd hell-of-kitty
-````
+3. Open in browser:  
+```  
+http://localhost:3000  
+```  
 
-2. Inicie um servidor local:
+---  
 
-```bash
-npm install -g serve
-serve .
-```
+## 📜 Legal Disclaimer  
 
-3. Acesse no navegador:
+This project is purely **educational and satirical**.  
+Any use of *Hello Kitty*™ is non-commercial.  
+Salazar (the professor) was notified and found it hilarious (probably).  
 
-```
-http://localhost:3000
-```
+---  
 
----
+> *Thank you, Professor Salazar.  
+> Without you, there’d be no boss fight.* 🎀🔥  
 
-## 📜 Aviso legal
-
-Este projeto é puramente **educacional e paródico**.
-Qualquer uso de marcas como *Hello Kitty* é feito sem fins comerciais.
-O Iális (Salazar) foi avisado e achou engraçado (provavelmente).
-
----
-
-> *Obrigado, professor Iális.
-> Sem você, não haveria boss fight.* 🎀🔥
-
----
+---  
